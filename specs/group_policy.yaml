@@ -74,7 +74,7 @@ paths:
     get:
       summary: Returns all role groups
       description: all the template group policies
-      operationId: findGroupPolicy
+      operationId: findGroupPolicyDeprecated
       deprecated: true   # Marking the operation as deprecated
       responses:
         '200':
@@ -279,19 +279,6 @@ components:
           enum: ["", "helm-app"]
           description: accessType difine permission type dawf=devtron app work flow, helm-app=helm app work flow. based on this flag data categoriesed into devtron and helm permission tabs in user auth role group section.
 
-
-    Error:
-      required:
-        - code
-        - message
-      properties:
-        code:
-          type: integer
-          format: int32
-          description: Error code
-        message:
-          type: string
-          description: Error message
 
     RoleGroupListingResponse:
       type: object

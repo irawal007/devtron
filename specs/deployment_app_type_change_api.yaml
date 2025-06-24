@@ -121,19 +121,3 @@ components:
         result:
           type: object
           description: DeploymentAppTypeChangeResponse object
-    Error:
-      required:
-        - code
-        - status
-      properties:
-        code:
-          type: integer
-          format: int32
-          description: Error internal code
-        internalMessage:
-          type: string
-          description: Error internal message
-        userMessage:
-          type: string
-          description: Error user message
-  

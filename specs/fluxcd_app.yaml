@@ -32,20 +32,20 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: '#/components/schemas/FluxCdError'
 
         '403':
           description: Forbidden
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: '#/components/schemas/FluxCdError'
         '500':
           description: Internal server error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: '#/components/schemas/FluxCdError'
 
   /orchestrator/flux-application/app:
       get:
@@ -76,19 +76,19 @@ paths:
             content:
               application/json:
                 schema:
-                  $ref: '#/components/schemas/Error'
+                  $ref: '#/components/schemas/FluxCdError'
           '403':
             description: Forbidden
             content:
               application/json:
                 schema:
-                  $ref: '#/components/schemas/Error'
+                  $ref: '#/components/schemas/FluxCdError'
           '500':
             description: Internal server error
             content:
               application/json:
                 schema:
-                  $ref: '#/components/schemas/Error'
+                  $ref: '#/components/schemas/FluxCdError'
 
 
 components:
@@ -290,7 +290,7 @@ components:
         ResourceTreeResponse:
           $ref: '#/components/schemas/ResourceTreeResponse'
 
-    Error:
+    FluxCdError:
       type: object
       properties:
         message:

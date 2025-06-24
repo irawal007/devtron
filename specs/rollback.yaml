@@ -238,14 +238,3 @@ components:
                   type: string
                 strategy:
                   type: string
-    Error:
-      required:
-        - code
-        - message
-      properties:
-        code:
-          type: integer
-          description: Error code
-        message:
-          type: string
-          description: Error message

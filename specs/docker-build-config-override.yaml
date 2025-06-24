@@ -41,7 +41,7 @@ paths:
   /orchestrator/app/ci-pipeline/{appId}:
     get:
       description: Get ci pipeline
-      operationId: GetCiPipeline
+      operationId: GetCiPipelinesForApp
       parameters:
         - name: appId
           in: path
@@ -73,7 +73,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
-  /orchestrator/app/ci-pipeline/patch:
+  /orchestrator/app/ci-pipeline/patch-override:
     post:
       description: Create/Update ci pipeline.
       operationId: PatchCiPipeline
@@ -143,7 +143,7 @@ components:
         appWorkflowId:
           type: integer
         ciPipeline:
-          $ref: "#/components/schemas/CiPipelineDetails"
+          $ref: "#/components/schemas/DockerOverride_CiPipelineDetails"
     CiConfigRequest:
       type: object
       properties:
@@ -160,7 +160,7 @@ components:
         ciPipelines:
           type: array
           items:
-            $ref: "#/components/schemas/CiPipelineDetails"
+            $ref: "#/components/schemas/DockerOverride_CiPipelineDetails"
         dockerRegistry:
           type: string
         dockerRepository:
@@ -169,17 +169,6 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/GitMaterial"
-    GitMaterial:
-      type: object
-      properties:
-        gitProviderUrl:
-          type: string
-        gitRepoUrl:
-          type: string
-        checkoutPath:
-          type: string
-        fetchSubmodules:
-          type: boolean
     DockerConfig:
       type: object
       properties:
@@ -208,7 +197,7 @@ components:
               Value:
                 type: string
           description: map of docker arguments, i.e. key-value pairs
-    CiPipelineDetails:
+    DockerOverride_CiPipelineDetails:
       type: object
       properties:
         isDockerConfigOverridden:
@@ -271,14 +260,3 @@ components:
           type: string
         reportDirectoryPath:
           type: string
-    Error:
-      required:
-        - code
-        - message
-      properties:
-        code:
-          type: integer
-          description: Error code
-        message:
-          type: string
-          description: Error message

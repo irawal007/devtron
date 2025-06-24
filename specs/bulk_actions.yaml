@@ -141,15 +141,3 @@ components:
           items:
             type: integer
           description: app ids
-
-    Error:
-      required:
-        - code
-        - message
-      properties:
-        code:
-          type: integer
-          description: Error code
-        message:
-          type: string
-          description: Error message

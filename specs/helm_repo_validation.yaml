@@ -116,37 +116,3 @@ paths:
 
 components:
   schemas:
-    ChartRepoDto:
-      type: object
-      properties:
-        id:
-          type: integer
-        name:
-          type: string
-        url:
-          type: string
-        userName:
-          type: string
-        password:
-          type: string
-        sshKey:
-          type: string
-        accessToken:
-          type: string
-        active:
-          type: boolean
-        default:
-          type: boolean
-        userId:
-          type: integer
-    Error:
-      required:
-        - code
-        - message
-      properties:
-        code:
-          type: integer
-          description: Error code
-        message:
-          type: string
-          description: Error message

@@ -167,37 +167,3 @@ components:
         deprecated:
           type: boolean
           description: is deprecated or not
-
-    ErrorResponse:
-      required:
-        - code
-        - status
-      properties:
-        code:
-          type: integer
-          format: int32
-          description: Error code
-        status:
-          type: string
-          description: Error message
-        errors:
-          type: array
-          description: errors
-          items:
-            $ref: '#/components/schemas/Error'
-
-    Error:
-      required:
-        - code
-        - status
-      properties:
-        code:
-          type: integer
-          format: int32
-          description: Error internal code
-        internalMessage:
-          type: string
-          description: Error internal message
-        userMessage:
-          type: string
-          description: Error user message

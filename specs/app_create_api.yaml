@@ -397,25 +397,17 @@ components:
             $ref: '#/components/schemas/AppLabel'
     AppLabel:
       type: object
+      required:
+        - key
+        - value
       properties:
-        Key:
+        key:
           type: string
-        Value:
+        value:
           type: string
         propagate:
           type: boolean
           description: Whether to propagate to kubernetes resources
-    GitMaterial:
-      type: object
-      properties:
-        gitProviderUrl:
-          type: string
-        gitRepoUrl:
-          type: string
-        checkoutPath:
-          type: string
-        fetchSubmodules:
-          type: boolean
     DockerConfig:
       type: object
       properties:
@@ -428,8 +420,8 @@ components:
     DockerBuildConfig:
       type: object
       properties:
-        gitCheckoutPath:
-          type: string
+        gitMaterialId: # Changed from gitCheckoutPath
+          type: integer
         dockerfileRelativePath:
           type: string
         targetPlatform:
@@ -477,12 +469,12 @@ components:
         name:
           type: string
         ciPipeline:
-          $ref: '#/components/schemas/CiPipelineDetails'
+          $ref: '#/components/schemas/AppCreate_CiPipelineDetails'
         cdPipelines:
           type: array
           items:
             $ref: '#/components/schemas/CdPipelineDetails'
-    CiPipelineDetails:
+    AppCreate_CiPipelineDetails:
       type: object
       properties:
         name:
@@ -693,17 +685,6 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Secret'
-    Error:
-      required:
-        - code
-        - message
-      properties:
-        code:
-          type: integer
-          description: Error code
-        message:
-          type: string
-          description: Error message
 
     AppWorkflowDto:
       type: object

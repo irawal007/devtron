@@ -40,7 +40,7 @@ paths:
                     type: array
                     description: app list
                     items:
-                      $ref: '#/components/schemas/App'
+                      $ref: '#/components/schemas/AppListingInfo_App'
         default:
           description: unexpected error
           content:
@@ -51,7 +51,7 @@ paths:
 # components mentioned below
 components:
   schemas:
-    App:
+    AppListingInfo_App:
       type: object
       properties:
         id:
@@ -60,36 +60,3 @@ components:
         name:
           type: string
           description: app name
-    ErrorResponse:
-      required:
-        - code
-        - status
-      properties:
-        code:
-          type: integer
-          format: int32
-          description: Error code
-        status:
-          type: string
-          description: Error message
-        errors:
-          type: array
-          description: errors
-          items:
-            $ref: '#/components/schemas/Error'
-
-    Error:
-      required:
-        - code
-        - status
-      properties:
-        code:
-          type: integer
-          format: int32
-          description: Error internal code
-        internalMessage:
-          type: string
-          description: Error internal message
-        userMessage:
-          type: string
-          description: Error user message

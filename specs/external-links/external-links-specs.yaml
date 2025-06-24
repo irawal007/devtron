@@ -163,13 +163,6 @@ components:
         description:
           type: string
           description: description about the external link
-    ActionResponse:
-      type: object
-      properties:
-        success:
-          type: boolean
-          description: success or failure
-          example: true
     LinkIdentifier:
       type: object
       properties:

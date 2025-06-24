@@ -122,7 +122,7 @@ paths:
     get:
       summary: used to fetch providers(recipients)
       description: recipients fetch by string search, it will return slacks providers and email ids
-      operationId: deleteGroupPolicy
+      operationId: getNotificationRecipients
       parameters:
         - name: value
           in: query
@@ -309,18 +309,3 @@ components:
         name:
           type: string
           description: it contains entity name
-
-
-
-    Error:
-      required:
-        - code
-        - message
-      properties:
-        code:
-          type: integer
-          format: int32
-          description: Error code
-        message:
-          type: string
-          description: Error message

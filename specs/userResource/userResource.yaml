@@ -113,36 +113,3 @@ components:
         data:
           type: object
           description: generic data field which will contain relevant data
-    ErrorResponse:
-      required:
-        - code
-        - status
-      properties:
-        code:
-          type: integer
-          format: int32
-          description: Error code
-        status:
-          type: string
-          description: Error message
-        errors:
-          type: array
-          description: errors
-          items:
-            $ref: '#/components/schemas/Error'
-
-    Error:
-      type: object
-      required:
-        - code
-        - status
-      properties:
-        code:
-          type: string
-          description: Error internal code
-        internalMessage:
-          type: string
-          description: Error internal message
-        userMessage:
-          type: string
-          description: Error user message

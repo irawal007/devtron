@@ -36,27 +36,27 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: '#/components/schemas/PluginCreationError'
         '401':
           description: Unauthorized, not found or invalid API token provided
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: '#/components/schemas/PluginCreationError'
 
         '403':
           description: Forbidden, user is not allowed to access this api
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: '#/components/schemas/PluginCreationError'
 
         '500':
           description: Internal server error
           content:
             application/json:
               schema:
-                $ref:  '#/components/schemas/Error'
+                $ref:  '#/components/schemas/PluginCreationError'
 
   /orchestrator/plugin/global/list/versions/min:
     get:
@@ -91,27 +91,27 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: '#/components/schemas/PluginCreationError'
         '401':
           description: Unauthorized, not found or invalid API token provided
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: '#/components/schemas/PluginCreationError'
 
         '403':
           description: Forbidden, user is not allowed to access this api
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: '#/components/schemas/PluginCreationError'
 
         '500':
           description: Internal server error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: '#/components/schemas/PluginCreationError'
 components:
   schemas:
     PluginMinDto:
@@ -283,7 +283,7 @@ components:
         description: Optional. A list of variables associated with this plugin step.
        pluginPipelineScript:
         allOf:
-          - $ref: '#/components/schemas/PluginPipelineScript'
+          - $ref: '#/components/schemas/Extended_PluginPipelineScript'
           - description: Script associated with this plugin step to be executed as part of the pipeline. Optional.
       required:
       - name
@@ -294,88 +294,7 @@ components:
       - outputDirectoryPath
       - dependentOnStep
 
-    PluginVariableDto:
-      type: object
-      properties:
-        id:
-          type: integer
-          description: The unique identifier of the plugin variable.
-        name:
-          type: string
-          description: The name of the plugin variable.
-        format:
-          type: string
-          description: The format of the variable value.
-          enum:
-            - STRING
-            - NUMBER
-            - BOOL
-            - DATE
-          example:
-            - STRING
-        description:
-          type: string
-          description: A description of the plugin variable.
-        isExposed:
-          type: boolean
-          description: Indicates whether the variable is exposed.
-        allowEmptyValue:
-          type: boolean
-          description: Indicates whether an empty value is allowed for the variable.
-        defaultValue:
-          type: string
-          description: The default value of the variable.
-        value:
-          type: string
-          description: The value of the variable.
-        variableType:
-          type: string
-          description: |
-            The type of the variable. This specifies whether the variable is required by the plugin (Marked as INPUT type) or whether that variable is produced by the plugin (Marked as OUTPUT type).
-          enum:
-            - OUTPUT
-            - INPUT
-          example:
-            - INPUT
-        valueType:
-          type: string
-          description: |
-            The value type of the variable. Specifies whether the plugin uses a new value provided by the user (marked as NEW), retrieves the value from the previous step (marked as FROM_PREVIOUS_STEP), or fetches a global value (marked as GLOBAL).
-            This indicates whether the plugin utilizes a new user-provided value, a value from a previous step, or a global value.
-          enum: [NEW, FROM_PREVIOUS_STEP,GLOBAL]
-          example:
-            - NEW
-            - FROM_PREVIOUS_STEP
-            - GLOBAL
-        previousStepIndex:
-          type: integer
-          description: The index of the previous step.
-        variableStepIndex:
-          type: integer
-          description: The index of the variable step.
-        variableStepIndexInPlugin:
-          type: integer
-          description: The index of the variable step in the plugin.
-        referenceVariableName:
-          type: string
-          description: The name of the reference variable.
-        pluginStepCondition:
-          type: array
-          items:
-            allOf:
-              - $ref: '#/components/schemas/PluginStepCondition'
-              - description: The conditions associated with the plugin variable.
-      required:
-        - name
-        - format
-        - description
-        - isExposed
-        - allowEmptyValue
-        - defaultValue
-        - variableType
-        - variableStepIndex
-        - variableStepIndexInPlugin
-
+    # PluginVariableDto removed as it's identical to global-plugin.yaml's definition
 
     PluginStepCondition:
       type: object
@@ -421,7 +340,7 @@ components:
         - conditionalValue
         - deleted
 
-    PluginPipelineScript:
+    Extended_PluginPipelineScript:
       type: object
       properties:
         id:
@@ -488,7 +407,7 @@ components:
         pathArgPortMapping:
           type: array
           items:
-            $ref: '#/components/schemas/ScriptPathArgPortMapping'
+            $ref: '#/components/schemas/Extended_ScriptPathArgPortMapping'
           description: The path argument port mappings associated with the plugin pipeline script.
       required:
         - script
@@ -506,7 +425,7 @@ components:
         - pathArgPortMapping
 
 
-    ScriptPathArgPortMapping:
+    Extended_ScriptPathArgPortMapping:
       type: object
       properties:
         id:
@@ -560,7 +479,7 @@ components:
         - portOnContainer
         - scriptId
 
-    Error:
+    PluginCreationError:
       title: Error
       type: object
       description: "A general error schema returned when status is not 200 OK"

@@ -121,11 +121,17 @@ components:
     ErrorResponse:
       required:
         - code
-        - message
+        - status # standardized field
       properties:
         code:
           type: integer
+          format: int32 # added format
           description: Error code
-        message:
+        status: # standardized field
           type: string
-          description: Error message
+          description: Error message # or status description
+        errors: # standardized field
+          type: array
+          description: errors
+          items:
+            $ref: '#/components/schemas/Error' # Will refer to common Error

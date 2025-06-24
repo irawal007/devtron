@@ -38,19 +38,19 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: '#/components/schemas/PluginSystemError'
         '500':
           description: Internal Server Error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: '#/components/schemas/PluginSystemError'
         '403':
           description: Unauthorized User
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: '#/components/schemas/PluginSystemError'
     post:
       description: Get list of all global plugins by filters
       operationId: GetAllPluginsAtGlobalLevelByFilters
@@ -83,19 +83,19 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: '#/components/schemas/PluginSystemError'
         '500':
           description: Internal Server Error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: '#/components/schemas/PluginSystemError'
         '403':
           description: Unauthorized User
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: '#/components/schemas/PluginSystemError'
   /orchestrator/plugin/global/{pluginId}:
     get:
       description: Get plugin by Id
@@ -131,19 +131,19 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: '#/components/schemas/PluginSystemError'
         '500':
           description: Internal Server Error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: '#/components/schemas/PluginSystemError'
         '403':
           description: Unauthorized User
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: '#/components/schemas/PluginSystemError'
   /orchestrator/plugin/global/list/filter/options:
     get:
       description: Get list of all filter options for plugins, i.e. tags and types
@@ -170,64 +170,19 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: '#/components/schemas/PluginSystemError'
         '500':
           description: Internal Server Error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: '#/components/schemas/PluginSystemError'
         '403':
           description: Unauthorized User
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
-  /orchestrator/plugin/global/list/global-variable:
-    get:
-      description: Get list of all global variables
-      operationId: GetAllGlobalVaariables
-      parameters:
-        - name: appId
-          in: query
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: Successfully return all operators
-          content:
-            application/json:
-              schema:
-                properties:
-                  code:
-                    type: integer
-                    description: status code
-                  status:
-                    type: string
-                    description: status
-                  result:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/GlobalVariable'
-        '400':
-          description: Bad Request. Input Validation error/wrong request body.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-        '500':
-          description: Internal Server Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-        '403':
-          description: Unauthorized User
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+                $ref: '#/components/schemas/PluginSystemError'
   /orchestrator/app/ci-pipeline/patch:
     post:
       description: Create CI pipeline
@@ -261,23 +216,23 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: '#/components/schemas/PluginSystemError'
         '500':
           description: Internal Server Error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: '#/components/schemas/PluginSystemError'
         '403':
           description: Unauthorized User
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: '#/components/schemas/PluginSystemError'
   /orchestrator/app/ci-pipeline/{appId}/{ciPipelineId}:
     get:
       description: get CI pipeline details
-      operationId: GetCiPipeline
+      operationId: GetCiPipelineDetail
       parameters:
         - name: appId
           in: path
@@ -311,19 +266,19 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: '#/components/schemas/PluginSystemError'
         '500':
           description: Internal Server Error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: '#/components/schemas/PluginSystemError'
         '403':
           description: Unauthorized User
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: '#/components/schemas/PluginSystemError'
 components:
   schemas:
     PluginDetailDto:
@@ -334,34 +289,12 @@ components:
         inputVariables:
           type: array
           items:
-            $ref: '#/components/schemas/PluginVariableDto'
+            $ref: '#/components/schemas/PluginSystem_PluginVariableDto'
         outputVariables:
           type: array
           items:
-            $ref: '#/components/schemas/PluginVariableDto'
-    PluginMetaDataDto:
-      type: object
-      properties:
-        id:
-          type: integer
-        name:
-          type: string
-        type:
-          type: string
-          example:
-            - "PRESET"
-        description:
-          type: string
-        icon:
-          type: string
-        tags:
-          type: array
-          items:
-            type: string
-            example:
-              - "GIT"
-              - "DATABASE"
-    PluginVariableDto:
+            $ref: '#/components/schemas/PluginSystem_PluginVariableDto'
+    PluginSystem_PluginVariableDto:
       type: object
       properties:
         id:
@@ -423,19 +356,6 @@ components:
           type: array
           items:
             type: string
-    GlobalVariable:
-      type: object
-      properties:
-        id:
-          type: integer
-        name:
-          type: string
-        value:
-          type: string
-        format:
-          type: string
-        description:
-          type: string
     CiPipelineDto:
       type: object
       properties:
@@ -636,11 +556,11 @@ components:
         inputVariables:
           type: array
           items:
-            $ref: '#/components/schemas/PluginVariableDto'
+            $ref: '#/components/schemas/PluginSystem_PluginVariableDto'
         outputVariables:
           type: array
           items:
-            $ref: '#/components/schemas/PluginVariableDto'
+            $ref: '#/components/schemas/PluginSystem_PluginVariableDto'
         conditionDetails:
           type: array
           items:
@@ -724,7 +644,7 @@ components:
           type: integer
         portOnContainer:
           type: integer
-    Error:
+    PluginSystemError:
       title: Error
       type: object
       description: "A general error schema returned when status is not 200 OK"

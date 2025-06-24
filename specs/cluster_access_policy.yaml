@@ -6,21 +6,21 @@ paths:
   /orchestrator/user:
     post:
       summary: Creates a new User
-      operationId: addUser
+      operationId: addOrchestratorUser
       requestBody:
         description: json as request body
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/User'
+              $ref: '#/components/schemas/OrchestratorUser'
       responses:
         '200':
           description: create user response
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/User'
+                $ref: '#/components/schemas/OrchestratorUser'
         default:
           description: unexpected error
           content:
@@ -29,21 +29,21 @@ paths:
                 $ref: '#/components/schemas/Error'
     put:
       summary: update user
-      operationId: updateUser
+      operationId: updateRoleGroup
       requestBody:
         description: json as request body
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/User'
+              $ref: '#/components/schemas/OrchestratorUser'
       responses:
         '200':
           description: user response
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/User'
+                $ref: '#/components/schemas/OrchestratorUser'
         default:
           description: unexpected error
           content:
@@ -54,7 +54,7 @@ paths:
   /orchestrator/role/group:
     post:
       summary: Creates a new role group
-      operationId: addUser
+      operationId: addRoleGroup
       requestBody:
         description: json as request body
         required: true
@@ -77,7 +77,7 @@ paths:
                 $ref: '#/components/schemas/Error'
     put:
       summary: update user
-      operationId: updateUser
+      operationId: updateOrchestratorUser
       requestBody:
         description: json as request body
         required: true
@@ -101,7 +101,7 @@ paths:
 
 components:
   schemas:
-    User:
+    OrchestratorUser:
       type: object
       required:
         - email_id
@@ -119,21 +119,9 @@ components:
         roleFilters:
           type: array
           items:
-            $ref: '#/components/schemas/roleFilter'
+            $ref: '#/components/schemas/LegacyClusterRoleFilter'
           description: role filters objects
-    RoleGroup:
-      type: object
-      properties:
-        id:
-          type: integer
-        name:
-          type: string
-        roleFilters:
-          type: array
-          items:
-            $ref: '#/components/schemas/roleFilter'
-          description: role filters objects
-    roleFilter:
+    LegacyClusterRoleFilter:
       type: object
       required:
         - action
@@ -157,15 +145,3 @@ components:
           type: string
           description: action is type of role, i.e, admin, trigger, view, etc.
           enum: ["view","edit","admin"]
-    Error:
-      required:
-        - code
-        - message
-      properties:
-        code:
-          type: integer
-          format: int32
-          description: Error code
-        message:
-          type: string
-          description: Error message

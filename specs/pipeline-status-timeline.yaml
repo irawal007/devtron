@@ -63,15 +63,3 @@ components:
           type: integer
         status_time:
           type: timestampz
-    Error:
-      required:
-        - code
-        - message
-      properties:
-        code:
-          type: integer
-          format: int32
-          description: Error code
-        message:
-          type: string
-          description: Error message

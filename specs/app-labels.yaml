@@ -187,7 +187,7 @@ components:
     Error:
       required:
         - code
-        - status
+        # - status removed as it's not a property
       properties:
         code:
           type: integer

@@ -13,7 +13,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/ClusterBean'
+              $ref: '#/components/schemas/DeleteOptions_ClusterBean'
       responses:
         '200':
           description: Successfully delete the cluster
@@ -341,7 +341,7 @@ paths:
                 $ref: '#/components/schemas/Error'
 components:
   schemas:
-    ClusterBean:
+    DeleteOptions_ClusterBean:
       type: object
       properties:
         id:
@@ -364,11 +364,11 @@ components:
         k8sversion:
           type: string
         prometheusAuth:
-          $ref: '#/components/schemas/PrometheusAuth'
+          $ref: '#/components/schemas/Flat_PrometheusAuth' # Updated ref
         defaultClusterComponent:
           type: array
           items:
-            $ref: '#/components/schemas/DefaultClusterComponent'
+            $ref: '#/components/schemas/Legacy_DefaultClusterComponentInfo' # Updated Ref
     EnvironmentBean:
       type: object
       properties:
@@ -474,7 +474,10 @@ components:
           type: boolean
         authMode:
           type: string
-    UpdateMaterialDTO:
+        userId: # Added from helm_repo_validation.yaml
+          type: integer
+          nullable: true
+    UpdateMaterialDTO: # Restoring this definition
       type: object
       properties:
         appId:
@@ -595,55 +598,3 @@ components:
           type: string
         default:
           type: boolean
-    PrometheusAuth:
-      type: object
-      properties:
-        userName:
-          type: string
-        password:
-          type: string
-        tlsClientCert:
-          type: string
-        tlsClientKey:
-          type: string
-    DefaultClusterComponent:
-        type: object
-        properties:
-          name:
-            type: string
-          appId:
-            type: integer
-          installedAppId:
-            type: integer
-          envId:
-            type: integer
-          envname:
-            type: string
-          status:
-            type: string
-    GitMaterial:
-      type: object
-      properties:
-        id:
-          type: integer
-        name:
-          type: string
-        url:
-          type: string
-        gitProviderId:
-          type: integer
-        checkoutPath:
-          type: string
-        fetchSubmodules:
-          type: boolean
-    Error:
-      required:
-        - code
-        - message
-      properties:
-        code:
-          type: integer
-          description: Error code
-        message:
-          type: string
-          description: Error message

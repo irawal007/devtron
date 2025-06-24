@@ -325,15 +325,3 @@ components:
         message:
           type: string
           description: App-level message for the concerned app
-
-    Error:
-      required:
-        - code
-        - message
-      properties:
-        code:
-          type: integer
-          description: Error code
-        message:
-          type: string
-          description: Error message

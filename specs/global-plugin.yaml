@@ -39,20 +39,20 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: '#/components/schemas/GlobalPluginError'
         '401':
           description: Unauthorized, not found or invalid API token provided
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: '#/components/schemas/GlobalPluginError'
 
         '403':
           description: Forbidden, user is not allowed to access this plugin information
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: '#/components/schemas/GlobalPluginError'
         '404':
           description: Not Found, the plugin with the specified ID does not exist
 
@@ -61,7 +61,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref:  '#/components/schemas/Error'
+                $ref:  '#/components/schemas/GlobalPluginError'
 
   /orchestrator/plugin/global/detail/all:
     get:
@@ -90,19 +90,19 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: '#/components/schemas/GlobalPluginError'
         '403':
           description: Forbidden, user is not authorized to access this resource
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: '#/components/schemas/GlobalPluginError'
         '500':
           description: Internal Server Error, could not fetch the plugin details
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: '#/components/schemas/GlobalPluginError'
 
 
 
@@ -131,19 +131,19 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: '#/components/schemas/GlobalPluginError'
         '403':
           description: "Unauthorized access attempt. This may occur if the user does not have the necessary permissions for the operation."
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: '#/components/schemas/GlobalPluginError'
         '500':
           description: "Internal Server Error indicating an unexpected condition that prevented the request from being fulfilled."
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: '#/components/schemas/GlobalPluginError'
 
   /orchestrator/plugin/global/list/global-variable:
     get:
@@ -180,19 +180,19 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: '#/components/schemas/GlobalPluginError'
         '403':
           description: Unauthorized User.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: '#/components/schemas/GlobalPluginError'
         '500':
           description: Internal Server Error.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: '#/components/schemas/GlobalPluginError'
 
 
 
@@ -222,7 +222,6 @@ components:
         - name
         - format
         - description
-        - type
 
 
     PluginMetaDataDto:
@@ -585,7 +584,7 @@ components:
         - portOnContainer
         - scriptId
 
-    Error:
+    GlobalPluginError:
       title: Error
       type: object
       description: "A general error schema returned when status is not 200 OK"

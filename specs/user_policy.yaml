@@ -240,6 +240,10 @@ components:
           items:
             $ref: '#/components/schemas/roleFilter'
           description: role filters objects
+    emptyRoleFilter: # This was below roleFilter, keeping its definition
+      type: object
+      required:
+        - action
     UserListingResponse:
       type: object
       properties:
@@ -295,88 +299,21 @@ components:
           format: date-time
           description: user last login time
 
-    emptyRoleFilter:
-      type: object
-      required:
-        - action
+    # emptyRoleFilter was already defined above, removing this duplicate
+    # emptyRoleFilter:
+    #   type: object
+    #   required:
+    #     - action
 
-
-    roleFilter:
-      type: object
-      required:
-        - action
-      properties:
-        entity:
-          type: string
-          description: global entity name, i.e chart-group, git, docker, cluster etc. if this key is present than field team, application and environment are ignored, here empty entity means Devtron apps permission.
-          enum:
-            - chart-group
-            - docker
-            - git
-            - cluster
-            - notification
-        team:
-          type: string
-          description: team name
-        entityName:
-          type: string
-          description: global entity name item name, i.e chart-group ("abc"), git("devtron-gt") etc.
-        environment:
-          type: string
-          description: comma saperated environments names.
-        action:
-          type: string
-          description: action is type of role, i.e manager, admin, trigger, view, etc.
-        accessType:
-          type: string
-          enum: ["", "helm-app"]
-          description: accessType difine permission type "devtron-app"=devtron app work flow, "helm-app"=helm app work flow. based on this flag data categoriesed into devtron and helm permission tabs in user auth section.
-    BulkDeleteRequest:
-      type: object
-      properties:
-        ids:
-          type: array
-          items:
-            type: integer
-            format: int32
-          description: Array of user IDs to be deleted
-        listingRequest:
-          $ref: '#/components/schemas/ListingRequest'
-    ListingRequest:
-      type: object
-      properties:
-        searchKey:
-          type: string
-          description: Search key for filtering
-        sortOrder:
-          type: string
-          enum:
-            - ASC
-            - DESC
-          description: Sorting order
-        sortBy:
-          type: string
-          enum:
-            - email_id
-            - last_login
-          description: Attribute to sort by
-        offset:
-          type: integer
-          format: int32
-          description: Starting index for fetching listings
-        size:
-          type: integer
-          format: int32
-          description: Number of listings to fetch
-        showAll:
-          type: boolean
-          description: Show all listings
+    # roleFilter removed as it's defined in group_policy.yaml
+    # BulkDeleteRequest removed as it's identical to group_policy.yaml's definition
+    # ListingRequest removed as group_policy.yaml's version will be used, and this one is unreferenced or its references are via already removed schemas.
     UserRoleGroupItem:
       type: object
       properties:
         roleGroup:
-          $ref: '#/components/schemas/RoleGroup'
-    RoleGroup:
+          $ref: '#/components/schemas/UserPolicy_RoleGroupSummary'
+    UserPolicy_RoleGroupSummary:
       type: object
       properties:
         id:
@@ -389,16 +326,3 @@ components:
         description:
           type: string
           description: The description of the role group
-
-    Error:
-      required:
-        - code
-        - message
-      properties:
-        code:
-          type: integer
-          format: int32
-          description: Error code
-        message:
-          type: string
-          description: Error message

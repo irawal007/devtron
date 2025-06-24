@@ -136,6 +136,12 @@ components:
           type: boolean
         azureProjectName:
           type: string
+        bitBucketWorkspaceId: # Added from gitops_bitbucket.yaml
+          type: string
+          nullable: true
+        bitBucketProjectKey:  # Added from gitops_bitbucket.yaml
+          type: string
+          nullable: true
         userId:
           type: integer
     DetailedError:
@@ -159,14 +165,3 @@ components:
               error:
                 type: string
           description: map of stage and their respective errors
-    Error:
-      required:
-        - code
-        - message
-      properties:
-        code:
-          type: integer
-          description: Error code
-        message:
-          type: string
-          description: Error message

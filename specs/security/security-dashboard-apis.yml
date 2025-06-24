@@ -44,20 +44,6 @@ paths:
                 $ref: '#/components/schemas/Error'
 components:
   schemas:
-    Error:
-      description: Error object
-      type: object
-      required:
-        - code
-        - message
-      properties:
-        code:
-          type: integer
-          format: int32
-          description: Error code
-        message:
-          type: string
-          description: Error message
     ImageScanRequest:
       description: Resource Level can be one of global, cluster, environment, application
       type: string

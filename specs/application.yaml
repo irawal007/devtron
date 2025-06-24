@@ -173,22 +173,6 @@ paths:
 # components mentioned below
 components:
   schemas:
-    AppLabel:
-      type: object
-      required:
-        - key
-        - value
-      properties:
-        key:
-          type: string
-          description: label key
-        value:
-          type: string
-          description: label value
-        propagate:
-          type: boolean
-          description: Whether to propagate to kubernetes resources
-
     App:
       type: object
       required:

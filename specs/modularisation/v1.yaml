@@ -129,13 +129,6 @@ components:
           type: string
           description: version to which server is to be upgradred
           example: "v1.2.3"
-    ActionResponse:
-      type: object
-      properties:
-        success:
-          type: boolean
-          description: success or failure
-          example: true
     ModuleResourceStatusDto:
       type: object
       properties:

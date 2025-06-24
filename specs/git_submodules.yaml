@@ -149,14 +149,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/UpdateMaterialDTO'
+              $ref: '#/components/schemas/Submodules_UpdateMaterialDTO'
       responses:
         '200':
           description: Successfully update the config
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UpdateMaterialDTO'
+                $ref: '#/components/schemas/Submodules_UpdateMaterialDTO'
         '400':
           description: Bad Request. Input Validation(decode) error/wrong request body.
           content:
@@ -311,7 +311,7 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/GitMaterial'
-    UpdateMaterialDTO:
+    Submodules_UpdateMaterialDTO:
       type: object
       properties:
         appId:
@@ -337,14 +337,3 @@ components:
           type: boolean
         isUsedInCiConfig:
           type: boolean
-    Error:
-      required:
-        - code
-        - message
-      properties:
-        code:
-          type: integer
-          description: Error code
-        message:
-          type: string
-          description: Error message

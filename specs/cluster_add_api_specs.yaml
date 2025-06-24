@@ -151,8 +151,8 @@ components:
         status:
           type: string
         configuration:
-          $ref: '#/components/schemas/Configuration'
-    Configuration:
+          $ref: '#/components/schemas/ClusterComponentConfigFormat'
+    ClusterComponentConfigFormat:
       type: object
       properties:
         type:

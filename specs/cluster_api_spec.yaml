@@ -104,7 +104,7 @@ paths:
 # components mentioned below
 components:
   schemas:
-    ClusterBean:
+    ClusterBean: # Restoring original structure with updated refs
       type: object
       properties:
         id:
@@ -120,12 +120,18 @@ components:
         config:
           type: object
           properties:
-            bearer_token:
+            bearer_token: # Simpler config
               type: string
               description: it will be empty while fetching, and if no change while updating
         k8sversion:
           type: string
-    PrometheusAuth:
+        prometheusAuth: # Should refer to the flat version now defined in this file
+          $ref: '#/components/schemas/Flat_PrometheusAuth'
+        defaultClusterComponent: # Should refer to the legacy version now defined in this file
+          type: array
+          items:
+            $ref: '#/components/schemas/Legacy_DefaultClusterComponentInfo'
+    Flat_PrometheusAuth:
       type: object
       properties:
         userName:
@@ -136,7 +142,7 @@ components:
           type: string
         tlsClientKey:
           type: string
-    DefaultClusterComponent:
+    Legacy_DefaultClusterComponentInfo:
       type: object
       properties:
         name:
@@ -151,52 +157,3 @@ components:
           type: string
         status:
           type: string
-    Cluster:
-      type: object
-      required:
-        - key
-        - value
-      properties:
-        clusterId:
-          type: integer
-          description: cluster id
-        clusterName:
-          type: string
-          description: cluster name
-        errorInConnecting:
-          type: string
-          description: error message if cluster failed to connect
-
-    ErrorResponse:
-      required:
-        - code
-        - status
-      properties:
-        code:
-          type: integer
-          format: int32
-          description: Error code
-        status:
-          type: string
-          description: Error message
-        errors:
-          type: array
-          description: errors
-          items:
-            $ref: '#/components/schemas/Error'
-
-    Error:
-      required:
-        - code
-        - status
-      properties:
-        code:
-          type: integer
-          format: int32
-          description: Error internal code
-        internalMessage:
-          type: string
-          description: Error internal message
-        userMessage:
-          type: string
-          description: Error user message
