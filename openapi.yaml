@@ -1,0 +1,4165 @@
+openapi: 3.0.0
+info:
+  title: Devtron Orchestrator API
+  version: "1.0"
+  description: OpenAPI specification for the Devtron Orchestrator.
+
+servers:
+  - url: /orchestrator
+    description: Main orchestrator base path
+
+components:
+  schemas:
+    ApiToken:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int32
+          description: Id of api-token
+        userId:
+          type: integer
+          format: int32
+          description: User Id associated with api-token
+        userIdentifier:
+          type: string
+          description: EmailId of that api-token user
+        name:
+          type: string
+          description: Name of api-token
+        description:
+          type: string
+          description: Description of api-token
+        expireAtInMs:
+          type: integer
+          format: int64
+          description: Expiration time of api-token in milliseconds
+        token:
+          type: string
+          description: Token of that api-token
+        lastUsedAt:
+          type: string
+          format: date-time
+          description: Date of Last used of this token
+        lastUsedByIp:
+          type: string
+          description: token last used by IP
+        updatedAt:
+          type: string
+          format: date-time
+          description: token last updatedAt
+    CreateApiTokenRequest:
+      type: object
+      required:
+        - name
+        - description
+      properties:
+        name:
+          type: string
+          description: Name of api-token
+        description:
+          type: string
+          description: Description of api-token
+        expireAtInMs:
+          type: integer
+          format: int64
+          description: Expiration time of api-token in milliseconds
+    CreateApiTokenResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          description: success or failure
+        token:
+          type: string
+          description: Token of that api-token
+        userId:
+          type: integer
+          format: int32
+          description: User Id associated with api-token
+        userIdentifier:
+          type: string
+          description: EmailId of that api-token user
+    UpdateApiTokenRequest:
+      type: object
+      required:
+        - description
+      properties:
+        description:
+          type: string
+          description: Description of api-token
+        expireAtInMs:
+          type: integer
+          format: int64
+          description: Expiration time of api-token in milliseconds
+    UpdateApiTokenResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          description: success or failure
+        token:
+          type: string
+          description: Token of that api-token
+    ActionResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          description: success or failure
+    ErrorResponse:
+      type: object
+      properties:
+        code:
+          type: integer
+          format: int32
+        internalMessage:
+          type: string
+        userMessage:
+          type: string
+    SimpleSuccessResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          example: "OK"
+        result:
+          type: string # Or boolean, or specific success object
+    PipelineTimelineDetailDto:
+      type: object
+      properties:
+        deploymentStartedOn:
+          type: string
+          format: date-time
+        deploymentFinishedOn:
+          type: string
+          format: date-time
+        triggeredBy:
+          type: string
+        timelines:
+          type: array
+          items:
+            $ref: '#/components/schemas/PipelineStatusTimelineDto'
+        statusLastFetchedAt:
+          type: string
+          format: date-time
+        statusFetchCount:
+          type: integer
+        wfrStatus:
+          type: string
+        deploymentAppDeleteRequest:
+          type: boolean
+    PipelineStatusTimelineDto:
+      type: object
+      properties:
+        id:
+          type: integer
+        installedAppVersionHistoryId:
+          type: integer
+        cdWorkflowRunnerId:
+          type: integer
+        status:
+          type: string # Enum: TIMELINE_STATUS (e.g., GIT_COMMIT, HEALTHY)
+          description: Timeline status enum
+        statusDetail:
+          type: string
+        statusTime:
+          type: string
+          format: date-time
+        resourceDetails:
+          type: array
+          items:
+            $ref: '#/components/schemas/SyncStageResourceDetailDto'
+    SyncStageResourceDetailDto: # Placeholder
+      type: object
+      properties:
+        kind:
+          type: string
+        name:
+          type: string
+        status:
+          type: string
+        message:
+          type: string
+    AppMetaInfoDto: # from pkg/bean/app.go (AppMetaInfoDto)
+      type: object
+      properties:
+        appId:
+          type: integer
+        appName:
+          type: string
+        description:
+          type: string
+        projectId:
+          type: integer
+        projectName:
+          type: string
+        createdBy:
+          type: string
+        createdOn:
+          type: string
+          format: date-time
+        active:
+          type: boolean
+        labels:
+          type: array
+          items:
+            $ref: '#/components/schemas/Label' # Defined in pkg/bean/app.go
+        note:
+          $ref: '#/components/schemas/GenericNoteResponseBean' # from api/bean/AppView/AppView.go
+        chartUsed:
+          $ref: '#/components/schemas/ChartUsedDto' # from pkg/bean/app.go
+        gitMaterials:
+          type: array
+          items:
+            $ref: '#/components/schemas/GitMaterialMetaDto' # from pkg/bean/app.go
+    Label:
+      type: object
+      properties:
+        key:
+          type: string
+        value:
+          type: string
+        propagate:
+          type: boolean
+    GenericNoteResponseBean: # from api/bean/AppView/AppView.go
+      type: object
+      properties:
+        id:
+          type: integer
+        description:
+          type: string
+        updatedBy:
+          type: string
+        updatedOn:
+          type: string
+          format: date-time
+        createdBy:
+          type: string
+    ChartUsedDto: # from pkg/bean/app.go
+      type: object
+      properties:
+        appStoreChartName:
+          type: string
+        appStoreChartId:
+          type: integer
+        appStoreAppName:
+          type: string
+        appStoreAppVersion:
+          type: string
+        chartAvatar:
+          type: string
+    GitMaterialMetaDto: # from pkg/bean/app.go
+      type: object
+      properties:
+        displayName:
+          type: string
+        redirectionUrl:
+          type: string
+        originalUrl:
+          type: string
+    AppNames: # from pkg/appStore/bean/AppStoreBean.go (local to handler, simple struct)
+      type: object
+      properties:
+        name:
+          type: string
+        exists:
+          type: boolean
+        appId:
+          type: integer
+    ChartGroupInstallRequest: # from pkg/appStore/chartGroup/ChartGroupService.go
+      type: object
+      properties:
+        chartGroupId:
+          type: integer
+        chartGroupInstallChartRequest:
+          type: array
+          items:
+            $ref: '#/components/schemas/ChartGroupInstallChartRequest'
+    ChartGroupInstallChartRequest: # from pkg/appStore/chartGroup/ChartGroupService.go
+      type: object
+      properties:
+        appStoreApplicationVersionId:
+          type: integer
+        referenceType:
+          type: string # Enum: Values, Existing, Default
+        referenceValueId:
+          type: integer
+        valuesOverrideYaml:
+          type: string
+    ChartGroupInstallAppRes: # from pkg/appStore/chartGroup/ChartGroupService.go
+      type: object
+      properties:
+        appId:
+          type: integer
+        environmentId:
+          type: integer
+        appName:
+          type: string
+        chartGroupName:
+          type: string
+        chartGroupEntryId:
+          type: integer
+    InstallAppVersionDTO: # from pkg/appStore/bean/AppStoreBean.go
+      type: object
+      # This is a large DTO, will simplify for now or add more detail if crucial for a specific endpoint
+      properties:
+        id:
+          type: integer
+        appId:
+          type: integer
+        appName:
+          type: string
+        teamId:
+          type: integer
+        environmentId:
+          type: integer
+        installedAppId:
+          type: integer
+        installedAppVersionId:
+          type: integer
+        appStoreApplicationVersionId:
+          type: integer
+        valuesOverrideYaml:
+          type: string
+        readme:
+          type: string
+        userId:
+          type: integer
+        referenceValueId:
+          type: integer
+        referenceValueKind:
+          type: string # Enum: DEFAULT, DEPLOYED, EXISTING
+        # ... and many more fields related to status, git hash, etc.
+    AppDetailContainer: # from api/bean/AppView/AppView.go (Simplified)
+      type: object
+      properties:
+        appName:
+          type: string
+        environmentName:
+          type: string
+        namespace:
+          type: string
+        clusterName:
+          type: string
+        # ... other relevant fields from DeploymentDetailContainer and InstanceDetail
+        resourceTree:
+          type: object
+          additionalProperties: true
+        notes:
+          type: string
+    Notes: # from api/bean/AppView/AppView.go (specifically for /installed-app/notes)
+        type: object
+        properties:
+          gitOpsNotes:
+            type: string
+    InstalledAppAndCount: # from pkg/appStore/bean/AppStoreBean.go
+      type: object
+      properties:
+        installedAppDetails:
+          type: array
+          items:
+            $ref: '#/components/schemas/HelmAppDetails' # Placeholder for appStoreBean.HelmAppDetails
+        totalCount:
+          type: integer
+    HelmAppDetails: # Placeholder for appStoreBean.HelmAppDetails
+      type: object
+      properties:
+        appName:
+          type: string
+        appId:
+          type: string # clusterId|namespace|releaseName
+        environmentName:
+          type: string
+        lastDeployedAt:
+          type: string
+          format: date-time
+        chartName:
+          type: string
+        chartVersion:
+          type: string
+        # ... and more
+    DeploymentAppTypeChangeRequest: # from pkg/bean/app.go
+      type: object
+      properties:
+        envId:
+          type: integer
+          format: int32
+        desiredDeploymentType:
+          type: string # Enum: helm, argo_cd etc. (corresponds to bean3.DeploymentType)
+        excludeApps:
+          type: array
+          items:
+            type: integer
+            format: int32
+        includeApps:
+          type: array
+          items:
+            type: integer
+            format: int32
+        autoTriggerDeployment:
+          type: boolean
+    DeploymentAppTypeChangeResponse: # from pkg/bean/app.go
+      type: object
+      properties:
+        envId:
+          type: integer
+          format: int32
+        desiredDeploymentType:
+          type: string
+        successfulPipelines:
+          type: array
+          items:
+            $ref: '#/components/schemas/DeploymentChangeStatus'
+        failedPipelines:
+          type: array
+          items:
+            $ref: '#/components/schemas/DeploymentChangeStatus'
+    DeploymentChangeStatus: # from pkg/bean/app.go
+      type: object
+      properties:
+        pipelineId:
+          type: integer
+        installedAppId:
+          type: integer
+        appId:
+          type: integer
+        appName:
+          type: string
+        envId:
+          type: integer
+        envName:
+          type: string
+        error:
+          type: string
+        status:
+          type: string # Enum: Success, Failed, INITIATED, etc.
+    UpdateReleaseWithChartLinkingRequest: # from api/openapi/openapiClient/ (simplified)
+      type: object
+      properties:
+        appId:
+          type: string # clusterId|namespace|releaseName
+        valuesYaml:
+          type: string
+        appStoreApplicationVersionId:
+          type: integer
+    UpdateProjectHelmAppDTO: # from pkg/appStore/bean/AppStoreBean.go
+      type: object
+      properties:
+        appId:
+          type: integer # This is installed_app_id
+        teamId:
+          type: integer
+    InstalledAppsResponse: # from pkg/appStore/bean/AppStoreBean.go
+      type: object
+      properties:
+        appId:
+          type: integer
+        appName:
+          type: string
+        # ... and more fields
+    AppStoreVersionValuesDTO: # from pkg/appStore/bean/AppStoreBean.go
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        valuesYaml:
+          type: string
+        appStoreApplicationVersionId:
+          type: integer
+        chartVersion:
+          type: string
+        # ... and more
+    AppStoreVersionValuesDTOWrapper: # from pkg/appStore/bean/AppStoreBean.go (if different from DTO)
+      type: object
+      properties:
+        # similar to AppStoreVersionValuesDTO
+        id:
+          type: integer
+        name:
+          type: string
+        valuesYaml:
+          type: string
+        appStoreApplicationVersionId:
+          type: integer
+        chartVersion:
+          type: string
+    ChartMetaDataRequestWrapper: # from pkg/appStore/bean/AppStoreBean.go
+      type: object
+      properties:
+        values: # map[string]interface{}
+          type: object
+          additionalProperties: true
+        chartId:
+          type: integer
+        chartName:
+          type: string
+    ChartInfoRes: # from pkg/appStore/bean/AppStoreBean.go
+      type: object
+      properties:
+        appStoreApplicationVersionId:
+          type: integer
+        chartName:
+          type: string
+        chartVersion:
+          type: string
+        readme:
+          type: string
+        # ... and more
+    AppStoreFilter: # from pkg/appStore/bean/AppStoreBean.go
+      type: object
+      properties:
+        searchKey:
+          type: string
+        # ... other filter params
+    AppStoreWithVersion: # from pkg/appStore/bean/AppStoreBean.go
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        chartRepoId:
+          type: integer
+        icon:
+          type: string
+        versions:
+          type: array
+          items:
+            $ref: '#/components/schemas/AppStoreApplicationVersionResponse' # Placeholder
+    AppStoreApplicationVersionResponse: # Placeholder for appStoreBean.AppStoreApplicationVersionResponse
+      type: object
+      properties:
+        id:
+          type: integer
+        version:
+          type: string
+        # ...
+    AppStoreVersionsResponse: # from pkg/appStore/bean/AppStoreBean.go
+      type: object
+      properties:
+        appStoreApplicationVersionId:
+          type: integer
+        version:
+          type: string
+        deprecated:
+          type: boolean
+        # ...
+    ChartRepoSearch: # from pkg/appStore/bean/AppStoreBean.go
+      type: object
+      properties:
+        chartName:
+          type: string
+        # ...
+    ChartProviderResponseDto: # from pkg/chartRepo/chartProvider/bean/ChartProviderBean.go
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        isDefault:
+          type: boolean
+        isActive:
+          type: boolean
+        # ...
+    ChartProviderRequestDto: # from pkg/chartRepo/chartProvider/bean/ChartProviderBean.go
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        isDefault:
+          type: boolean
+        isActive:
+          type: boolean
+        # ...
+    ArgoApplicationListDto: # from pkg/argoApplication/bean/bean.go
+      type: object
+      properties:
+        appName:
+          type: string
+        clusterId:
+          type: integer
+        clusterName:
+          type: string
+        namespace:
+          type: string
+        appStatus:
+          type: string
+        syncStatus:
+          type: string
+    ArgoApplicationDetailDto: # from pkg/argoApplication/bean/bean.go
+      allOf:
+        - $ref: '#/components/schemas/ArgoApplicationListDto'
+        - type: object
+          properties:
+            resourceTree:
+              $ref: '#/components/schemas/GrpcResourceTreeResponse' # Placeholder
+            manifest:
+              type: object
+              additionalProperties: true # Represents a generic JSON object
+    GrpcResourceTreeResponse: # Placeholder for gRPC.ResourceTreeResponse
+      type: object
+      properties:
+        applicationName:
+          type: string
+        nodes:
+          type: array
+          items:
+            $ref: '#/components/schemas/GrpcResourceNode' # Placeholder
+        # ... other potential fields ...
+    GrpcResourceNode: # Placeholder
+      type: object
+      properties:
+        group:
+          type: string
+        kind:
+          type: string
+        version:
+          type: string
+        namespace:
+          type: string
+        name:
+          type: string
+        status:
+          type: string
+        health:
+          type: object # Placeholder for health status
+          properties:
+            status:
+              type: string
+            message:
+              type: string
+        # ... other potential fields like parentRefs, info, etc.
+    SSOLoginDto: # from pkg/auth/user/bean/UserRequest.go
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int32
+        name:
+          type: string
+        label:
+          type: string
+        url:
+          type: string
+          format: uri
+        config: # Assuming this is a JSON object for SSO provider specific config
+          type: object
+          additionalProperties: true
+        active:
+          type: boolean
+    RbacRoleDto: # from pkg/auth/user/bean/UserRequest.go (Not explicitly defined, assuming structure based on usage)
+      type: object
+      properties:
+        role:
+          type: string
+          description: The RBAC role string (e.g., manager/devtron-app/argo-cd/viewer)
+        # This DTO is very minimal and might just be the role string itself,
+        # or could be part of a larger RBAC configuration object if the service returns more.
+        # For now, keeping it simple as just the role string.
+        # If it's part of a larger user or group DTO, that would be referenced instead.
+        # The handler `GetAllAutomationRbacRoles` suggests it returns a list of role strings.
+    RbacRoleDataResponse: # Actual response from handler
+      type: object
+      properties:
+        roles:
+          type: array
+          items:
+            type: string
+        # It might also include role groups or other metadata if the service expands it.
+    UserLoginRequest: # Placeholder for userNamePassword struct inline in handler
+      type: object
+      required:
+        - username
+        - password
+      properties:
+        username:
+          type: string
+        password:
+          type: string
+    UserLoginResponse: # Placeholder for session login response
+      type: object
+      properties:
+        token:
+          type: string
+        # Other session related info if any
+    UserPolicyRequest: # Placeholder for bean.PolicyRequest used in AddDefaultPolicies
+      type: object
+      properties:
+        userId:
+          type: integer
+          format: int32
+        policies: # Assuming it's a list of role assignments or policy definitions
+          type: array
+          items:
+            type: object # Specific policy/role structure TBD
+            properties:
+              entity:
+                type: string
+              entityName:
+                type: string
+              action:
+                type: string
+              # ... other policy fields
+    AuthVerificationResponse: # Placeholder
+      type: object
+      properties:
+        isSuccess:
+          type: boolean
+        userId:
+          type: integer
+          format: int32
+        emailId:
+          type: string
+        # other user details if returned
+    UserInfo:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int32
+        email_id: # Note: key in JSON is email_id
+          type: string
+          format: email
+        roles:
+          type: array
+          items:
+            type: string
+        access_token:
+          type: string
+        roleFilters:
+          type: array
+          items:
+            $ref: '#/components/schemas/RoleFilter'
+        userRoleGroups: # Renamed from groups for clarity, as it contains RoleGroup info
+          type: array
+          items:
+            $ref: '#/components/schemas/UserRoleGroup'
+        superAdmin:
+          type: boolean
+        lastLoginTime:
+          type: string
+          format: date-time
+    RoleFilter:
+      type: object
+      properties:
+        entity:
+          type: string
+        team:
+          type: string
+        entityName:
+          type: string
+        environment:
+          type: string
+        action:
+          type: string
+        accessType:
+          type: string
+        cluster:
+          type: string
+        namespace:
+          type: string
+        group:
+          type: string
+        kind:
+          type: string
+        resource:
+          type: string
+        workflow:
+          type: string
+    RoleGroup:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int32
+        name:
+          type: string
+        description:
+          type: string
+        roleFilters:
+          type: array
+          items:
+            $ref: '#/components/schemas/RoleFilter'
+        superAdmin:
+          type: boolean
+    UserRoleGroup:
+      type: object
+      properties:
+        roleGroup:
+          $ref: '#/components/schemas/RoleGroup'
+    RoleData: # Used in checkUserRbacRequest, likely a simplified RoleFilter
+      type: object
+      properties:
+        id: # Not in bean.RoleData, but often present in requests
+          type: integer
+          format: int32
+        role: # Not in bean.RoleData, but often present in requests
+          type: string
+        entity:
+          type: string
+        team:
+          type: string
+        entityName:
+          type: string
+        environment:
+          type: string
+        action:
+          type: string
+        accessType:
+          type: string
+        cluster:
+          type: string
+        namespace:
+          type: string
+        group:
+          type: string
+        kind:
+          type: string
+        resource:
+          type: string
+    UserListingRequest: # from pkg/auth/user/bean/UserRequest.go
+      type: object
+      properties:
+        searchKey:
+          type: string
+        sortOrder:
+          type: string # Enum: ASC, DESC
+        sortBy:
+          type: string # Enum: email_id, last_login_time
+        offset:
+          type: integer
+        size:
+          type: integer
+        showAll:
+          type: boolean
+    UserListingResponse: # from pkg/auth/user/bean/UserRequest.go
+      type: object
+      properties:
+        users:
+          type: array
+          items:
+            $ref: '#/components/schemas/UserInfo'
+        totalCount:
+          type: integer
+    RoleGroupListingResponse: # from pkg/auth/user/bean/UserRequest.go
+      type: object
+      properties:
+        roleGroups:
+          type: array
+          items:
+            $ref: '#/components/schemas/RoleGroup'
+        totalCount:
+          type: integer
+    BulkDeleteRequest: # from pkg/auth/user/bean/UserRequest.go
+      type: object
+      properties:
+        ids:
+          type: array
+          items:
+            type: integer
+            format: int32
+        listingRequest: # Optional, for refetching list after delete
+          $ref: '#/components/schemas/UserListingRequest'
+    CheckUserRbacRequest: # Placeholder for the inline struct in CheckUserRbac
+        type: object
+        properties:
+          resource:
+            type: string
+          action:
+            type: string
+          object:
+            type: string
+    UserRbacCheckResponse: # Placeholder
+        type: object
+        properties:
+          isAllowed:
+            type: boolean
+    ChartRepo: # Based on chartRepoRepository.ChartRepo and ChartRepoDto
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        url:
+          type: string
+          format: uri
+        active:
+          type: boolean
+        default: # is_default in DB
+          type: boolean
+        userName:
+          type: string
+        password:
+          type: string
+        sshKey:
+          type: string
+        accessToken:
+          type: string
+        authMode:
+          type: string # Enum: USERNAME_PASSWORD, ACCESS_TOKEN, SSH, ANONYMOUS (from constants.AuthMode)
+        external:
+          type: boolean
+        allowInsecureConnection:
+          type: boolean
+    ChartRepoWithIsEditable:
+      allOf:
+        - $ref: '#/components/schemas/ChartRepo'
+        - type: object
+          properties:
+            isEditable:
+              type: boolean
+    ChartRepoRequest: # For Create/Update requests, similar to ChartRepo
+      type: object
+      required:
+        - name
+        - url
+        - authMode
+      properties:
+        id: # Optional for create, required for update (though not explicitly stated, typical for PUT)
+          type: integer
+        name:
+          type: string
+        url:
+          type: string
+          format: uri
+        authMode:
+          type: string # Enum: USERNAME_PASSWORD, ACCESS_TOKEN, SSH, ANONYMOUS
+        userName:
+          type: string
+          nullable: true
+        password:
+          type: string
+          nullable: true
+        sshKey:
+          type: string
+          nullable: true
+        accessToken:
+          type: string
+          nullable: true
+        active:
+          type: boolean
+          default: true
+        allowInsecureConnection:
+          type: boolean
+          default: false
+    DetailedErrorHelmRepoValidation:
+      type: object
+      properties:
+        customErrMsg:
+          type: string
+        actualErrMsg:
+          type: string
+    ChartSyncManualRequest: # Placeholder for TriggerChartSyncManual request
+      type: object
+      properties:
+        chartProviderId:
+          type: string # Even though it's an ID, the service struct takes it as string
+          description: ID of the chart repo (provider) to sync
+    EnvironmentBean: # from pkg/cluster/environment/bean/bean.go
+      type: object
+      properties:
+        id:
+          type: integer
+        environment_name: # Note: key in JSON is environment_name
+          type: string
+          maxLength: 50
+        cluster_id:
+          type: integer
+        cluster_name:
+          type: string
+        active:
+          type: boolean
+        default:
+          type: boolean
+        prometheus_endpoint:
+          type: string
+          format: uri
+          nullable: true
+        namespace:
+          type: string
+          maxLength: 50
+          nullable: true
+        isClusterCdActive: # maps to CdArgoSetup
+          type: boolean
+        environmentIdentifier:
+          type: string
+        description:
+          type: string
+          maxLength: 40
+        appCount:
+          type: integer
+        isVirtualEnvironment:
+          type: boolean
+        allowedDeploymentTypes:
+          type: array
+          items:
+            type: string # Enum: helm, argo_cd
+    EnvDto: # from pkg/cluster/environment/bean/bean.go
+      type: object
+      properties:
+        environmentId:
+          type: integer
+        environmentName:
+          type: string
+          maxLength: 50
+        namespace:
+          type: string
+          maxLength: 50
+        environmentIdentifier:
+          type: string
+        description:
+          type: string
+          maxLength: 40
+        isVirtualEnvironment:
+          type: boolean
+    ClusterEnvDto: # from pkg/cluster/environment/bean/bean.go
+      type: object
+      properties:
+        clusterId:
+          type: integer
+        clusterName:
+          type: string
+        environments:
+          type: array
+          items:
+            $ref: '#/components/schemas/EnvDto'
+        isVirtualCluster:
+          type: boolean
+    EnvironmentCreateRequest: # Based on EnvironmentBean for POST
+      type: object
+      required:
+        - environment_name
+        - cluster_id
+      properties:
+        environment_name:
+          type: string
+          maxLength: 50
+        cluster_id:
+          type: integer
+        namespace:
+          type: string
+          maxLength: 50
+          nullable: true
+        default:
+          type: boolean
+          default: false
+        description:
+          type: string
+          maxLength: 40
+          nullable: true
+        isVirtualEnvironment:
+          type: boolean
+          default: false
+        prometheus_endpoint:
+          type: string
+          format: uri
+          nullable: true
+    EnvironmentUpdateRequest: # Based on EnvironmentBean for PUT
+      type: object
+      required:
+        - id
+        - environment_name
+        # Other fields might be required depending on update logic, assuming id is key
+      properties:
+        id:
+          type: integer
+        environment_name:
+          type: string
+          maxLength: 50
+        # cluster_id is typically not updatable for an existing env
+        active: # Added as it's often part of update
+          type: boolean
+        default:
+          type: boolean
+        prometheus_endpoint:
+          type: string
+          format: uri
+          nullable: true
+        namespace: # Namespace might be updatable
+          type: string
+          maxLength: 50
+          nullable: true
+        description:
+          type: string
+          maxLength: 40
+          nullable: true
+        # isVirtualEnvironment is likely not updatable after creation
+    ClusterReachableResponse: # Inline in handler
+      type: object
+      properties:
+        clusterReachable:
+          type: boolean
+    ClusterBean: # from pkg/cluster/bean/bean.go
+      type: object
+      required:
+        - cluster_name
+        - server_url
+      properties:
+        id:
+          type: integer
+        cluster_name:
+          type: string
+        description:
+          type: string
+          nullable: true
+        server_url:
+          type: string
+          format: uri
+        prometheus_url:
+          type: string
+          format: uri
+          nullable: true
+        active:
+          type: boolean
+        config: # map[string]string, for K8s config details
+          type: object
+          additionalProperties:
+            type: string
+        prometheusAuth:
+          $ref: '#/components/schemas/PrometheusAuth'
+        defaultClusterComponent:
+          type: array
+          items:
+            $ref: '#/components/schemas/DefaultClusterComponent'
+        agentInstallationStage:
+          type: integer
+          description: "-1=external, 0=not triggered, 1=progressing, 2=success, 3=fails"
+        k8sVersion:
+          type: string
+          nullable: true
+        insecureSkipTlsVerify:
+          type: boolean
+        errorInConnecting: # Not always present in response, but good for doc
+          type: string
+          nullable: true
+        isCdArgoSetup:
+          type: boolean
+        isVirtualCluster:
+          type: boolean
+        clusterUpdated: # Not always present in response
+          type: boolean
+          nullable: true
+        isProd:
+          type: boolean
+          nullable: true
+
+    PrometheusAuth: # from pkg/cluster/bean/bean.go
+      type: object
+      properties:
+        userName:
+          type: string
+        password:
+          type: string
+        tlsClientCert:
+          type: string
+        tlsClientKey:
+          type: string
+        isAnonymous:
+          type: boolean
+    DefaultClusterComponent: # from pkg/cluster/bean/bean.go
+      type: object
+      properties:
+        name: # componentName
+          type: string
+        appId:
+          type: integer
+        installedAppId:
+          type: integer
+        envId:
+          type: integer
+        envName:
+          type: string
+        status:
+          type: string
+    Kubeconfig: # from pkg/cluster/bean/bean.go
+      type: object
+      properties:
+        config:
+          type: string # Base64 encoded kubeconfig string
+    GenericNote: # from pkg/genericNotes/repository/GenericNoteRepository.go
+      type: object
+      properties:
+        id:
+          type: integer
+        identifier: # Cluster ID in this context
+          type: integer
+        identifierType: # Should be ClusterType (0)
+          type: integer # NoteType enum
+        description:
+          type: string
+        # AuditLog fields (createdOn, createdBy, etc.) are omitted for request/response body
+    ClusterDescriptionBean: # from pkg/cluster/ClusterDescriptionService.go (likely simple)
+      type: object
+      properties:
+        clusterId:
+          type: integer
+        clusterName:
+          type: string
+        description:
+          type: string
+    GetHistoryQueryParams: # from pkg/devtronResource/bean/apiReqDecoderBean.go
+      type: object
+      properties:
+        appId:
+          type: integer
+        pipelineId:
+          type: integer
+        # 'kind' and 'version' are path params, not query for this specific DTO usage
+    GetHistoryConfigQueryParams: # from pkg/devtronResource/bean/apiReqDecoderBean.go
+      type: object
+      properties:
+        appId:
+          type: integer
+        pipelineId:
+          type: integer
+        # 'kind' and 'version' are path params
+    DeploymentHistoryResponse: # Already conceptually defined, will ensure it matches usage here
+                               # Key fields: deployments (array of DeploymentHistoryItem)
+                               # DeploymentHistoryItem: cdWorkflowRunnerId, ciArtifactId, image, deployedAt, deployedBy, status
+      type: object
+      properties:
+        appName:
+          type: string
+        environmentName:
+          type: string
+        deployments:
+          type: array
+          items:
+            $ref: '#/components/schemas/DeploymentHistoryItem' # Placeholder
+    DeploymentHistoryItem: # Placeholder for items within DeploymentHistoryResponse
+      type: object
+      properties:
+        cdWorkflowRunnerId:
+          type: integer
+        ciArtifactId:
+          type: integer
+        image:
+          type: string
+        deployedAt:
+          type: string
+          format: date-time
+        deployedBy:
+          type: string
+        status:
+          type: string
+        # Might include more details like commit info, tags from pipelineBean.CdWorkflowWithArtifact
+        # For now, keeping it aligned with previous placeholder.
+    ExternalLinkMonitoringToolDto:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        icon:
+          type: string
+        category:
+          type: integer
+    LinkIdentifier:
+      type: object
+      properties:
+        type:
+          type: string # Enum: app, cluster, devtron-app, devtron-installed-app, external-helm-app
+        identifier:
+          type: string # App name or other specific ID if type is not 'cluster'
+        envId:
+          type: integer
+        appId:
+          type: integer
+        clusterId:
+          type: integer
+    ExternalLinkDto:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        url:
+          type: string
+          format: uri
+        active:
+          type: boolean
+        monitoringToolId:
+          type: integer
+        type:
+          type: string # Enum: clusterLevel, appLevel
+        identifiers:
+          type: array
+          items:
+            $ref: '#/components/schemas/LinkIdentifier'
+        isEditable:
+          type: boolean
+        description:
+          type: string
+        updatedOn:
+          type: string
+          format: date-time
+    ExternalLinkApiResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+    FluxApplication: # from pkg/fluxApplication/bean/bean.go
+      type: object
+      properties:
+        appName: # maps to Name in DTO
+          type: string
+        appStatus: # maps to HealthStatus in DTO
+          type: string
+        syncStatus:
+          type: string
+        clusterId:
+          type: integer
+        clusterName:
+          type: string
+        namespace:
+          type: string
+        fluxAppDeploymentType:
+          type: string
+    FluxApplicationListDto: # from pkg/fluxApplication/bean/bean.go
+      type: object
+      properties:
+        clusterId:
+          type: integer
+        fluxAppDto: # Name in DTO, assuming it's a list of FluxApplication for response
+          type: array
+          items:
+            $ref: '#/components/schemas/FluxApplication'
+    FluxApplicationDetailDto: # from pkg/fluxApplication/bean/bean.go
+      allOf:
+        - $ref: '#/components/schemas/FluxApplication'
+        - type: object
+          properties:
+            fluxAppStatusDetail:
+              $ref: '#/components/schemas/FluxAppStatusDetail'
+            resourceTree:
+              $ref: '#/components/schemas/GrpcResourceTreeResponse' # Placeholder
+    FluxAppStatusDetail: # from pkg/fluxApplication/bean/bean.go
+      type: object
+      properties:
+        status:
+          type: string
+        message:
+          type: string
+        reason:
+          type: string
+    DeploymentChartInfo: # Inline in DeploymentConfigRestHandler.go
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        chartDescription:
+          type: string
+        version:
+          type: string
+        isUserUploaded:
+          type: boolean
+        # uploadedBy: string - This field is in the struct but not in the JSON response tag
+    GetHistoryQueryParams: # from api/devtronResource/bean/bean.go
+      type: object
+      properties:
+        filterCriteria: # This is complex, used to derive appId, pipelineId internally
+          type: array
+          items:
+            type: string
+          description: "Filter criteria, e.g., [\"appId=1\",\"pipelineId=2\"]"
+        offSet: # Note: schema uses 'offSet' (capital S)
+          type: integer
+        limit:
+          type: integer
+    GetHistoryConfigQueryParams: # from api/devtronResource/bean/bean.go
+      type: object
+      properties:
+        baseConfigurationId:
+          type: integer
+        historyComponent:
+          type: string
+        historyComponentName:
+          type: string
+        filterCriteria:
+          type: array
+          items:
+            type: string
+          description: "Filter criteria, e.g., [\"appId=1\",\"pipelineId=2\"]"
+    # DeploymentHistoryResponse and HistoryDetailDto were defined during PipelineConfigRouter/PipelineHistoryRouter
+    # DeployedHistoryComponentMetadataDto was defined during PipelineHistoryRouter
+
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+security:
+  - bearerAuth: []
+
+paths:
+  /api-token:
+    get:
+      summary: Get all active API tokens
+  /app-store/deployment-status/timeline/{installedAppId}/{envId}:
+    get:
+      summary: Get deployment status timeline for an installed app
+      tags:
+        - AppStore
+      parameters:
+        - name: installedAppId
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: envId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PipelineTimelineDetailDto'
+        # ... other error responses
+  /app-store/overview:
+    get:
+      summary: Get app overview metadata
+      tags:
+        - AppStore
+      parameters:
+        - name: installedAppId
+          in: query
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AppMetaInfoDto'
+        # ... other error responses
+  /app-store/application/exists:
+    post:
+      summary: Check if applications exist
+      tags:
+        - AppStore
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/AppNames' # name field only
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AppNames' # name, exists, appId
+        # ... other error responses
+  /app-store/group/install:
+    post:
+      summary: Install a chart group
+      tags:
+        - AppStore
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChartGroupInstallRequest'
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChartGroupInstallAppRes'
+        # ... other error responses
+  /app-store/installed-app/delete/{installedAppId}/non-cascade:
+    delete:
+      summary: Delete an installed app (non-cascade)
+      tags:
+        - AppStore
+      parameters:
+        - name: installedAppId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InstallAppVersionDTO' # Actually returns InstalledAppDeleteResponseDTO part
+        # ... other error responses
+  /app-store/installed-app/detail/v2:
+    get:
+      summary: Get installed app details v2
+      tags:
+        - AppStore
+      parameters:
+        - name: installed-app-id
+          in: query
+          required: true
+          schema:
+            type: integer
+        - name: env-id
+          in: query
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AppDetailContainer'
+        # ... other error responses
+  /app-store/installed-app/detail/resource-tree:
+    get:
+      summary: Get installed app resource tree details
+      tags:
+        - AppStore
+      parameters:
+        - name: installed-app-id # from AppView.AppDetailContainer -> installedAppId
+          in: query
+          required: true
+          schema:
+            type: integer
+        - name: env-id # from AppView.AppDetailContainer -> EnvironmentId
+          in: query
+          required: true
+          schema:
+            type: integer
+        - name: app-name # from AppView.AppDetailContainer -> AppName
+          in: query
+          required: false # optional based on usage
+          schema:
+            type: string
+        - name: version # from AppView.AppDetailContainer -> AppStoreAppVersion
+          in: query
+          required: false # optional based on usage
+          schema:
+            type: string
+        - name: group # from ResourceRequestBean -> Group
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: kind # from ResourceRequestBean -> Kind
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: resourceName # from ResourceRequestBean -> Name
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AppDetailContainer' # Actually AppDetailsContainer
+        # ... other error responses
+  /app-store/installed-app/resource/hibernate:
+    get: # Note: This seems like it should be a POST/PUT, but handler is GetHibernateCriteria
+      summary: Get hibernate criteria for an app resource
+      tags:
+        - AppStore
+      parameters:
+        - name: installedAppId
+          in: query
+          required: true
+          schema:
+            type: integer
+        - name: environmentId
+          in: query
+          required: true
+          schema:
+            type: integer
+        - name: kind # from ResourceIdentifierDto -> GroupVersionKind.Kind
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: group # from ResourceIdentifierDto -> GroupVersionKind.Group
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: resourceName # from ResourceIdentifierDto -> Name
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AppDetailContainer' # Actually HibernateCriteria
+        # ... other error responses
+  /app-store/installed-app/notes:
+    get:
+      summary: Get notes for an installed app
+      tags:
+        - AppStore
+      parameters:
+        - name: installedAppId
+          in: query
+          required: true
+          schema:
+            type: integer
+        - name: environmentId
+          in: query
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Notes'
+        # ... other error responses
+  /app-store/installed-app:
+    get:
+      summary: List installed apps
+      tags:
+        - AppStore
+      parameters:
+        # Query params from appStoreBean.AppStoreFilter (clusterIds, envIds, searchKey, etc.)
+        - name: clusterIds
+          in: query
+          schema:
+            type: array
+            items:
+              type: integer
+        - name: envIds
+          in: query
+          schema:
+            type: array
+            items:
+              type: integer
+        - name: searchKey
+          in: query
+          schema:
+            type: string
+        - name: appStoreId
+          in: query
+          schema:
+            type: array
+            items:
+              type: integer
+        - name: chartRepoId
+          in: query
+          schema:
+            type: array
+            items:
+              type: integer
+        - name: offset
+          in: query
+          schema:
+            type: integer
+        - name: size
+          in: query
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InstalledAppAndCount'
+        # ... other error responses
+  /app-store/cluster-component/install/{clusterId}:
+    post:
+      summary: Install cluster component
+      tags:
+        - AppStore
+      parameters:
+        - name: clusterId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: boolean # Or ActionResponse
+        # ... other error responses
+  /app-store/installed-app/migrate:
+    post:
+      summary: Migrate installed app deployment type
+      tags:
+        - AppStore
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeploymentAppTypeChangeRequest'
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeploymentAppTypeChangeResponse'
+        # ... other error responses
+  /app-store/installed-app/trigger:
+    post:
+      summary: Trigger deployment for installed app after type change
+      tags:
+        - AppStore
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeploymentAppTypeChangeRequest' # Assuming same request as migrate
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeploymentAppTypeChangeResponse' # Assuming same response
+        # ... other error responses
+
+  # Sub-router: /app-store/deployment (AppStoreDeploymentRouter)
+  /app-store/deployment/application/install:
+    post:
+      summary: Install an application from app store
+      tags:
+        - AppStoreDeployment
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InstallAppVersionDTO'
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InstallAppVersionDTO' # Response is also InstallAppVersionDTO
+        # ... other error responses
+  /app-store/deployment/application/update:
+    put:
+      summary: Update an installed application
+      tags:
+        - AppStoreDeployment
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InstallAppVersionDTO'
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InstallAppVersionDTO'
+        # ... other error responses
+  /app-store/deployment/installed-app/{appStoreId}:
+    get:
+      summary: Get installed application by app store ID
+      tags:
+        - AppStoreDeployment
+      parameters:
+        - name: appStoreId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InstallAppVersionDTO'
+        # ... other error responses
+  /app-store/deployment/application/delete/{id}:
+    delete:
+      summary: Delete an installed application
+      tags:
+        - AppStoreDeployment
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer # This is installedAppId
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InstallAppVersionDTO' # Actually InstalledAppDeleteResponseDTO part
+        # ... other error responses
+  /app-store/deployment/application/helm/link-to-chart-store:
+    put:
+      summary: Link an existing Helm release to the chart store
+      tags:
+        - AppStoreDeployment
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateReleaseWithChartLinkingRequest'
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InstallAppVersionDTO'
+        # ... other error responses
+  /app-store/deployment/application/version/{installedAppVersionId}:
+    get:
+      summary: Get installed application version details
+      tags:
+        - AppStoreDeployment
+      parameters:
+        - name: installedAppVersionId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InstallAppVersionDTO'
+        # ... other error responses
+  /app-store/deployment/application/update/project:
+    put:
+      summary: Update project for a Helm app
+      tags:
+        - AppStoreDeployment
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateProjectHelmAppDTO'
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InstalledAppsResponse' # Or a simple success message
+        # ... other error responses
+
+  # Sub-router: /app-store/values (AppStoreValuesRouter)
+  /app-store/values/template/values:
+    post:
+      summary: Create template values for an app store version
+      tags:
+        - AppStoreValues
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AppStoreVersionValuesDTO'
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AppStoreVersionValuesDTO'
+        # ... other error responses
+    put:
+      summary: Update template values for an app store version
+      tags:
+        - AppStoreValues
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AppStoreVersionValuesDTO'
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AppStoreVersionValuesDTO'
+        # ... other error responses
+    get:
+      summary: Get template values
+      tags:
+        - AppStoreValues
+      parameters:
+        - name: referenceId
+          in: query
+          required: true
+          schema:
+            type: integer
+        - name: kind
+          in: query
+          required: true
+          schema:
+            type: string # Enum: DEFAULT, TEMPLATE, DEPLOYED
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AppStoreVersionValuesDTOWrapper' # Or AppStoreVersionValuesDTO
+        # ... other error responses
+  /app-store/values/template/values/{appStoreValueId}:
+    delete:
+      summary: Delete template values by ID
+      tags:
+        - AppStoreValues
+      parameters:
+        - name: appStoreValueId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ActionResponse'
+        # ... other error responses
+  /app-store/values/template/values/list/{appStoreId}:
+    get:
+      summary: List template values for an app store ID
+      tags:
+        - AppStoreValues
+      parameters:
+        - name: appStoreId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AppStoreVersionValuesDTO'
+        # ... other error responses
+  /app-store/values/application/values/list/{appStoreId}:
+    get:
+      summary: List application values for an app store ID
+      tags:
+        - AppStoreValues
+      parameters:
+        - name: appStoreId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AppStoreVersionValuesDTO'
+        # ... other error responses
+  /app-store/values/chart/selected/metadata:
+    post:
+      summary: Get metadata for selected chart values
+      tags:
+        - AppStoreValues
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChartMetaDataRequestWrapper'
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChartInfoRes'
+        # ... other error responses
+
+  # Sub-router: /app-store/discover (AppStoreDiscoverRouter)
+  /app-store/discover:
+    get:
+      summary: Discover app store applications
+      tags:
+        - AppStoreDiscover
+      parameters:
+        # Query params from appStoreBean.AppStoreFilter
+        - name: chartRepoId
+          in: query
+          schema:
+            type: array
+            items:
+              type: integer
+        - name: searchKey
+          in: query
+          schema:
+            type: string
+        - name: appStoreName
+          in: query
+          schema:
+            type: string
+        - name: offset
+          in: query
+          schema:
+            type: integer
+        - name: size
+          in: query
+          schema:
+            type: integer
+        - name: filterDeprecated
+          in: query
+          schema:
+            type: boolean
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AppStoreWithVersion'
+        # ... other error responses
+  /app-store/discover/application/{id}:
+    get:
+      summary: Get app store application by ID
+      tags:
+        - AppStoreDiscover
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AppStoreWithVersion'
+        # ... other error responses
+  /app-store/discover/application/{appStoreId}/version/autocomplete:
+    get:
+      summary: Autocomplete app store application versions
+      tags:
+        - AppStoreDiscover
+      parameters:
+        - name: appStoreId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AppStoreApplicationVersionResponse' # Simplified
+        # ... other error responses
+  /app-store/discover/application/chartInfo/{appStoreApplicationVersionId}:
+    get:
+      summary: Get chart info for an app store application version
+      tags:
+        - AppStoreDiscover
+      parameters:
+        - name: appStoreApplicationVersionId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChartInfoRes'
+        # ... other error responses
+  /app-store/discover/search: #?chartName={chartName}
+    get:
+      summary: Search app store charts
+      tags:
+        - AppStoreDiscover
+      parameters:
+        - name: chartName
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ChartRepoSearch' # Simplified
+        # ... other error responses
+
+  # Sub-router: /app-store/chart-provider (ChartProviderRouter)
+  /app-store/chart-provider/list:
+    get:
+      summary: List chart providers
+      tags:
+        - AppStoreChartProvider
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ChartProviderResponseDto'
+        # ... other error responses
+  /app-store/chart-provider/update:
+    post:
+      summary: Update chart provider (create or update)
+      tags:
+        - AppStoreChartProvider
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChartProviderRequestDto'
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChartProviderResponseDto'
+        # ... other error responses
+  /app-store/chart-provider/sync-chart:
+    post:
+      summary: Sync charts for a provider
+  /argo-application:
+    get:
+      summary: List ArgoCD applications
+      tags:
+        - ArgoApplication
+      parameters:
+        - name: clusterIds
+          in: query
+          required: false
+          description: Comma-separated list of cluster IDs to filter by.
+          schema:
+            type: string # Representing comma-separated integers
+        - name: appStatuses
+          in: query
+          required: false
+          description: Comma-separated list of application statuses to filter by.
+          schema:
+            type: string
+        - name: syncStatuses
+          in: query
+          required: false
+          description: Comma-separated list of sync statuses to filter by.
+          schema:
+            type: string
+        - name: appNamePatterns
+          in: query
+          required: false
+          description: Comma-separated list of app name patterns (wildcards supported).
+          schema:
+            type: string
+        - name: namespaces
+          in: query
+          required: false
+          description: Comma-separated list of namespaces to filter by.
+          schema:
+            type: string
+        - name: offset
+          in: query
+          required: false
+          schema:
+            type: integer
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: A list of ArgoCD applications.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ArgoApplicationListDto'
+        # ... other error responses
+  /argo-application/detail:
+    get:
+      summary: Get ArgoCD application detail
+  /sso/create:
+    post:
+      summary: Create SSO login configuration
+      tags:
+        - SSO
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SSOLoginDto'
+      responses:
+        '200':
+          description: Successfully created SSO configuration.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SSOLoginDto' # Response includes the created object
+        # ... other error responses
+  /sso/update:
+    put:
+      summary: Update SSO login configuration
+      tags:
+        - SSO
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SSOLoginDto' # Requires ID to be present for update
+      responses:
+        '200':
+          description: Successfully updated SSO configuration.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SSOLoginDto'
+        # ... other error responses
+  /rbac/role:
+    get:
+      summary: Get all RBAC roles for automation
+  /auth/login: # Actual path might be /login or /api/v1/session based on specific login method
+    post:
+      summary: User login with username and password
+      tags:
+        - UserAuth
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserLoginRequest'
+      responses:
+        '200':
+          description: Login successful, returns session token.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserLoginResponse'
+        '401':
+          description: Authentication failed.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        # ... other error responses
+
+  /auth/callback: # Path for OIDC callback
+    get:
+      summary: OIDC Callback Endpoint
+      tags:
+        - UserAuth
+      # Parameters depend on OIDC flow (code, state, etc.)
+      parameters:
+        - name: code
+          in: query
+          schema:
+            type: string
+        - name: state
+          in: query
+          schema:
+            type: string
+      responses:
+        '302':
+          description: Redirect after successful authentication.
+        # ... other error/redirect responses
+
+  /api/v1/session:
+    post:
+      summary: User login via session (alternative to /auth/login)
+      tags:
+        - UserAuth
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserLoginRequest' # Assuming same payload
+      responses:
+        '200':
+          description: Login successful.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserLoginResponse' # Assuming similar response
+        '401':
+          description: Authentication failed.
+        # ... other error responses
+    delete:
+      summary: User logout
+      tags:
+        - UserAuth
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Logout successful.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SimpleSuccessResponse'
+        # ... other error responses
+
+  /refresh-token:
+    get:
+      summary: Refresh API token
+      tags:
+        - UserAuth
+      security:
+        - bearerAuth: [] # Or cookie-based session
+      responses:
+        '200':
+          description: Token refreshed successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+        # ... other error responses
+
+  /user/add/policy/default:
+    post:
+      summary: Add default policies for a user
+      tags:
+        - UserAuth
+        - UserManagement # Might also fit here
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserPolicyRequest'
+      responses:
+        '200':
+          description: Default policies added successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ActionResponse' # success: true
+        # ... other error responses
+
+  /auth/verify:
+    get:
+      summary: Verify authentication status
+  /user:
+    post:
+      summary: Create a new user
+      tags:
+        - UserManagement
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserInfo' # UserInfo is used for create/update
+      responses:
+        '200':
+          description: User created successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserInfo'
+        # ... other error responses
+    put:
+      summary: Update an existing user
+      tags:
+        - UserManagement
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserInfo' # Requires ID
+      responses:
+        '200':
+          description: User updated successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserInfo'
+        # ... other error responses
+    get: # For GetUserByEmail
+      summary: Get user by email
+      tags:
+        - UserManagement
+      parameters:
+        - name: email_id
+          in: query
+          required: true
+          schema:
+            type: string
+            format: email
+      responses:
+        '200':
+          description: User details.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserInfo'
+        # ... other error responses
+  /user/{id}:
+    get:
+      summary: Get user by ID
+      tags:
+        - UserManagement
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: User details.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserInfo'
+        # ... other error responses
+    delete:
+      summary: Delete a user
+      tags:
+        - UserManagement
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: User deleted successfully.
+          content:
+            application/json:
+              schema:
+                type: boolean # Or ActionResponse
+        # ... other error responses
+  /user/list:
+    post:
+      summary: List users with filters and pagination
+      tags:
+        - UserManagement
+      requestBody:
+        required: false # Can be empty for default listing
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserListingRequest'
+      responses:
+        '200':
+          description: A list of users.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserListingResponse'
+        # ... other error responses
+  /user/role/group:
+    post:
+      summary: Create a new role group
+      tags:
+        - UserManagement
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RoleGroup'
+      responses:
+        '200':
+          description: Role group created successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RoleGroup'
+        # ... other error responses
+    put:
+      summary: Update an existing role group
+      tags:
+        - UserManagement
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RoleGroup' # Requires ID
+      responses:
+        '200':
+          description: Role group updated successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RoleGroup'
+        # ... other error responses
+  /user/role/group/{id}:
+    get:
+      summary: Get role group by ID
+      tags:
+        - UserManagement
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: Role group details.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RoleGroup'
+        # ... other error responses
+    delete:
+      summary: Delete a role group
+      tags:
+        - UserManagement
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: Role group deleted successfully.
+          content:
+            application/json:
+              schema:
+                type: boolean # Or ActionResponse
+        # ... other error responses
+  /user/role/group/list:
+    post:
+      summary: List role groups with filters and pagination
+      tags:
+        - UserManagement
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserListingRequest' # Reusing for listing params
+      responses:
+        '200':
+          description: A list of role groups.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RoleGroupListingResponse'
+        # ... other error responses
+  /user/role/group/name/{name}:
+    get:
+      summary: Get role group by name
+      tags:
+        - UserManagement
+      parameters:
+        - name: name
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Role group details.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RoleGroup'
+  /user/check/rbac:
+    post:
+      summary: Check user RBAC permission for a resource
+      tags:
+        - UserManagement
+        - RBAC
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CheckUserRbacRequest'
+      responses:
+        '200':
+          description: RBAC check result.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserRbacCheckResponse'
+        # ... other error responses
+  /user/bulk/delete:
+    post:
+      summary: Bulk delete users
+      tags:
+        - UserManagement
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BulkDeleteRequest'
+      responses:
+        '200':
+          description: Bulk delete operation status.
+          content:
+            application/json:
+              schema: # Assuming a generic success or detailed status
+                $ref: '#/components/schemas/ActionResponse'
+        # ... other error responses
+  /user/role/group/bulk/delete:
+    post:
+      summary: Bulk delete role groups
+      tags:
+        - UserManagement
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BulkDeleteRequest'
+      responses:
+        '200':
+          description: Bulk delete operation status.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ActionResponse'
+  # Other endpoints like /exists, /roles, /sync/ldap, /reset/password etc. would follow similar patterns.
+  /chart-repo:
+    post:
+      summary: Create a new chart repository
+      tags:
+        - ChartRepository
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChartRepoRequest'
+      responses:
+        '200':
+          description: Chart repository created successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChartRepo' # Returns the DB model
+        # ... other error responses (400, 500)
+    get:
+      summary: Get all chart repositories
+      tags:
+        - ChartRepository
+      responses:
+        '200':
+          description: A list of chart repositories with editable status.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ChartRepoWithIsEditable'
+        # ... other error responses
+    put:
+      summary: Update an existing chart repository
+      tags:
+        - ChartRepository
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChartRepoRequest' # Requires ID
+      responses:
+        '200':
+          description: Chart repository updated successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChartRepo'
+        # ... other error responses
+    delete:
+      summary: Delete a chart repository
+      tags:
+        - ChartRepository
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: # Expects ChartRepoDto, mainly ID and Name are used
+              type: object
+              properties:
+                id:
+                  type: integer
+                name:
+                  type: string
+      responses:
+        '200':
+          description: Chart repository deleted successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ActionResponse' # Or simple success string
+        # ... other error responses
+  /chart-repo/validate:
+    post:
+      summary: Validate chart repository configuration
+      tags:
+        - ChartRepository
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChartRepoRequest'
+      responses:
+        '200':
+          description: Validation result.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DetailedErrorHelmRepoValidation'
+        # ... other error responses
+  /chart-repo/list/min:
+    get:
+      summary: Get a minimal list of all chart repositories
+      tags:
+        - ChartRepository
+      responses:
+        '200':
+          description: A minimal list of chart repositories.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ChartRepo' # Uses ChartRepoDto, which is similar
+        # ... other error responses
+  /chart-repo/{id}:
+    get:
+      summary: Get chart repository by ID
+      tags:
+        - ChartRepository
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Chart repository details.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChartRepo' # Uses ChartRepoDto
+        # ... other error responses
+  /chart-repo/triggerActiveSync:
+    post:
+      summary: Trigger manual sync for an active chart repository
+  /env:
+    post:
+      summary: Create a new environment
+      tags:
+        - Environment
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EnvironmentCreateRequest'
+      responses:
+        '200':
+          description: Environment created successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvironmentBean'
+        # ... other error responses
+    put:
+      summary: Update an existing environment
+      tags:
+        - Environment
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EnvironmentUpdateRequest'
+      responses:
+        '200':
+          description: Environment updated successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvironmentBean'
+        # ... other error responses
+    get: # For FindById
+      summary: Get environment by ID
+      tags:
+        - Environment
+      parameters:
+        - name: id
+          in: query
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Environment details.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvironmentBean'
+        # ... other error responses
+  /env/all:
+    get:
+      summary: Get all active environments
+      tags:
+        - Environment
+      responses:
+        '200':
+          description: A list of active environments.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/EnvironmentBean'
+        # ... other error responses
+  /env/all/active: # Note: Path from router was /all/active, but handler GetAllActive seems to be general, matching /env/all
+    get:
+      summary: Get all active environments (alias for /env/all)
+      tags:
+        - Environment
+      responses:
+        '200':
+          description: A list of active environments.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/EnvironmentBean'
+        # ... other error responses
+  /env/clusterEnv:
+    get:
+      summary: Get all environments grouped by cluster
+      tags:
+        - Environment
+      responses:
+        '200':
+          description: A list of clusters with their environments.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ClusterEnvDto'
+        # ... other error responses
+  /env/autocomplete:
+    get:
+      summary: Autocomplete environments
+      tags:
+        - Environment
+      parameters:
+        - name: name
+          in: query
+          required: false
+          description: Name to filter environments by.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: A list of environments for autocomplete.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/EnvDto' # Returns EnvDto for autocomplete
+        # ... other error responses
+  /env/identifier/{identifier}:
+    get:
+      summary: Get environment by identifier
+      tags:
+        - Environment
+      parameters:
+        - name: identifier
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Environment details.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvironmentBean'
+        # ... other error responses
+  /env/connection/{clusterId}:
+    get:
+      summary: Check cluster connection status for an environment
+      tags:
+        - Environment
+      parameters:
+        - name: clusterId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Cluster connection status.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClusterReachableResponse'
+        # ... other error responses
+  /cluster:
+    post:
+      summary: Create a new cluster
+      tags:
+        - Cluster
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ClusterBean' # ClusterBean is used for create/update
+      responses:
+        '200':
+          description: Cluster created successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClusterBean'
+        # ... other error responses
+    put:
+      summary: Update an existing cluster
+      tags:
+        - Cluster
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ClusterBean' # Requires ID
+      responses:
+        '200':
+          description: Cluster updated successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClusterBean'
+        # ... other error responses
+  /cluster/findAll:
+    get:
+      summary: Find all clusters
+      tags:
+        - Cluster
+      responses:
+        '200':
+          description: A list of all clusters.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ClusterBean'
+        # ... other error responses
+  /cluster/findById:
+    get:
+      summary: Find cluster by ID
+      tags:
+        - Cluster
+      parameters:
+        - name: id
+          in: query
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Cluster details.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClusterBean'
+        # ... other error responses
+  /cluster/autocomplete:
+    get:
+      summary: Autocomplete clusters
+      tags:
+        - Cluster
+      responses:
+        '200':
+          description: A list of clusters for autocomplete.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ClusterBean' # Simplified version might be returned
+        # ... other error responses
+  /cluster/component/status/{clusterId}:
+    get:
+      summary: Get cluster component statuses
+      tags:
+        - Cluster
+      parameters:
+        - name: clusterId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: List of component statuses.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/DefaultClusterComponent'
+        # ... other error responses
+  /cluster/note:
+    get:
+      summary: Get cluster note
+      tags:
+        - Cluster
+      parameters:
+        - name: clusterId
+          in: query
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Cluster note.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericNote'
+        # ... other error responses
+    post:
+      summary: Create or update cluster note
+      tags:
+        - Cluster
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GenericNote' # identifier is clusterId
+      responses:
+        '200':
+          description: Note created/updated successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericNote'
+        # ... other error responses
+    put: # Alias for POST /cluster/note
+      summary: Create or update cluster note (PUT)
+      tags:
+        - Cluster
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GenericNote'
+      responses:
+        '200':
+          description: Note created/updated successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericNote'
+  /cluster/description:
+    get:
+      summary: Get cluster description by ID
+      tags:
+        - Cluster
+      parameters:
+        - name: id
+          in: query
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Cluster description.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClusterDescriptionBean'
+        # ... other error responses
+  /cluster/validate:
+    post:
+      summary: Validate cluster configuration
+      tags:
+        - Cluster
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ClusterBean'
+      responses:
+        '200':
+          description: Validation result.
+          content:
+            application/json: # Response is likely the ClusterBean with ErrorInConnecting populated
+              schema:
+                $ref: '#/components/schemas/ClusterBean'
+        # ... other error responses
+  /cluster/save/description:
+    post:
+      summary: Save cluster description
+      tags:
+        - Cluster
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ClusterDescriptionBean'
+      responses:
+        '200':
+          description: Cluster description saved.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClusterDescriptionBean'
+        # ... other error responses
+  /cluster/namespace/list:
+    post:
+      summary: List namespaces in a cluster
+      tags:
+        - Cluster
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Kubeconfig' # Kubeconfig can be sent to list namespaces
+      responses:
+        '200':
+          description: List of namespaces.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+        # ... other error responses
+  /cluster/validate/kubeconfig:
+    post:
+      summary: Validate Kubeconfig
+  /dashboard-event/dashboardAccessed:
+    get:
+      summary: Record dashboard accessed event
+      tags:
+        - Telemetry
+      responses:
+        '200':
+          description: Event recorded successfully.
+          content:
+            application/json:
+              schema:
+                type: string # "OK"
+        # ... other error responses
+  /resource/history/deployment/config/{kind}/{version}:
+    get:
+      summary: Get historical deployment configuration
+      tags:
+        - DevtronResourceHistory
+      parameters:
+        - name: kind
+          in: path
+          required: true
+          schema:
+            type: string # e.g., "deployment-template", "configmap", "secret", "pipeline-strategy"
+        - name: version
+          in: path
+          required: true
+          schema:
+            type: integer # History ID of the specific component version
+        - name: appId # from GetHistoryConfigQueryParams
+          in: query
+          required: false # Handler implies optional, but service might require it based on 'kind'
+          schema:
+            type: integer
+        - name: pipelineId # from GetHistoryConfigQueryParams
+          in: query
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Historical configuration detail.
+          content:
+            application/json: # Response is *history.HistoryDetailDto
+              schema:
+                $ref: '#/components/schemas/HistoryDetailDto' # Defined in PipelineTriggerRouter analysis
+        # ... other error responses
+  /resource/history/deployment/{kind}/{version}:
+    get:
+      summary: Get historical deployment component list
+      tags:
+        - DevtronResourceHistory
+      parameters:
+        - name: kind
+          in: path
+          required: true
+          schema:
+            type: string # e.g., "deployment-template", "configmap", "secret", "pipeline-strategy"
+        - name: version
+          in: path
+          required: true
+          schema:
+            type: integer # Base configuration ID (e.g., wfrId or specific deployment ID)
+        - name: appId # from GetHistoryQueryParams
+          in: query
+          required: false
+          schema:
+            type: integer
+        - name: pipelineId # from GetHistoryQueryParams
+          in: query
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: List of historical component versions.
+          content:
+            application/json: # Response is []*history.DeployedHistoryComponentMetadataDto
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/DeployedHistoryComponentMetadataDto' # Defined in PipelineHistoryRouter analysis
+        # ... other error responses
+  /deployment/template/upload:
+    post:
+      summary: Upload a deployment chart
+      tags:
+        - DeploymentTemplate
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+                chartName: # Optional query param in handler, but part of form here
+                  type: string
+                chartVersion: # Optional query param in handler
+                  type: string
+                description: # Optional query param in handler
+                  type: string
+      responses:
+        '200':
+          description: Chart uploaded successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeploymentChartInfo'
+        # ... other error responses
+  /deployment/template/validate/upload:
+    post:
+      summary: Validate and upload a deployment chart
+      tags:
+        - DeploymentTemplate
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+      responses:
+        '200':
+          description: Chart validated and uploaded successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeploymentChartInfo' # Response includes message if validation fails
+        # ... other error responses
+  /deployment/template/download/{id}:
+    get:
+      summary: Download a deployment chart
+      tags:
+        - DeploymentTemplate
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Chart downloaded successfully.
+          content:
+            application/octet-stream: # Or application/gzip
+              schema:
+                type: string
+                format: binary
+        # ... other error responses
+  /deployment/template/ref/list:
+    get:
+      summary: List chart references
+  /resource/history/deployment/config/{kind}/{version}:
+    get:
+      summary: Get historical deployment configuration detail by component
+      tags:
+        - DevtronResourceHistory
+      parameters:
+        - name: kind
+          in: path
+          required: true
+          description: Kind of the resource (e.g., devtron-app-cd-pipeline).
+          schema:
+            type: string
+        - name: version # This is the version of the API (e.g., v1alpha1), not history version
+          in: path
+          required: true
+          description: API version of the resource.
+          schema:
+            type: string
+        # Query parameters are from GetHistoryConfigQueryParams
+        - name: baseConfigurationId
+          in: query
+          required: true
+          schema:
+            type: integer
+          description: ID of the base configuration (e.g. wfrId).
+        - name: historyComponent
+          in: query
+          required: true
+          schema:
+            type: string
+          description: Specific component type (e.g., DEPLOYMENT_TEMPLATE, CONFIGMAP, SECRET).
+        - name: historyComponentName
+          in: query
+          required: false
+          schema:
+            type: string
+          description: Name of the specific component (e.g., my-configmap).
+        - name: filterCriteria
+          in: query
+          required: false # Though service might implicitly require appId/pipelineId via this
+          style: form
+          explode: false # To handle array of strings correctly
+          schema:
+            type: array
+            items:
+              type: string
+          description: "Filter criteria, e.g., filterCriteria=appId=1&filterCriteria=pipelineId=2"
+      responses:
+        '200':
+          description: Historical configuration detail.
+          content:
+            application/json: # Response is *history.HistoryDetailDto
+              schema:
+                $ref: '#/components/schemas/HistoryDetailDto' # Defined in PipelineTriggerRouter analysis
+        '400':
+          description: Bad Request (e.g. invalid kind/version or filterCriteria)
+        # ... other error responses
+  /resource/history/deployment/{kind}/{version}:
+    get:
+      summary: Get list of historical versions for a deployment component
+      tags:
+        - DevtronResourceHistory
+      parameters:
+        - name: kind
+          in: path
+          required: true
+          description: Kind of the resource (e.g., devtron-app-cd-pipeline).
+          schema:
+            type: string
+        - name: version # This is the version of the API (e.g., v1alpha1), not history version
+          in: path
+          required: true
+          description: API version of the resource.
+          schema:
+            type: string
+        # Query parameters are from GetHistoryQueryParams
+        - name: filterCriteria
+          in: query
+          required: true # Needs pipelineId from this
+          style: form
+          explode: false
+          schema:
+            type: array
+            items:
+              type: string
+          description: "Filter criteria, must include pipelineId. e.g., filterCriteria=pipelineId=2"
+        - name: offSet
+          in: query
+          required: false
+          schema:
+            type: integer
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: List of historical component versions.
+          content:
+            application/json: # Response is DeploymentHistoryResponse (from pipeline.history.bean)
+              schema:
+                $ref: '#/components/schemas/DeploymentHistoryResponse'
+        '400':
+          description: Bad Request (e.g. invalid kind/version or filterCriteria)
+        # ... other error responses
+      tags:
+        - DeploymentTemplate
+      responses:
+        '200':
+          description: A list of chart references.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ChartRefDto' # from chartRef/bean/bean.go
+        # ... other error responses
+  /dashboard-event/dashboardLoggedIn:
+    get:
+      summary: Record dashboard logged in event
+  /deployment/template/upload:
+    post:
+      summary: Upload a deployment chart
+      tags:
+        - DeploymentTemplate
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+                chartName: # Optional query param in handler, but part of form here
+                  type: string
+                chartVersion: # Optional query param in handler
+                  type: string
+                description: # Optional query param in handler
+                  type: string
+      responses:
+        '200':
+          description: Chart uploaded successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeploymentChartInfo'
+        # ... other error responses
+  /deployment/template/validate/upload:
+    post:
+      summary: Validate and upload a deployment chart
+      tags:
+        - DeploymentTemplate
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+      responses:
+        '200':
+          description: Chart validated and uploaded successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeploymentChartInfo' # Response includes message if validation fails
+        # ... other error responses
+  /deployment/template/download/{id}:
+    get:
+      summary: Download a deployment chart
+      tags:
+        - DeploymentTemplate
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Chart downloaded successfully.
+          content:
+            application/octet-stream: # Or application/gzip
+              schema:
+                type: string
+                format: binary
+        # ... other error responses
+  /deployment/template/ref/list:
+    get:
+      summary: List chart references
+  /external-links:
+    post:
+      summary: Create new external links
+      tags:
+        - ExternalLink
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/ExternalLinkDto'
+      responses:
+        '200':
+          description: External links created successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExternalLinkApiResponse'
+        # ... other error responses
+    get: # FetchAllActiveLinks
+      summary: Fetch all active external links or by identifier
+      tags:
+        - ExternalLink
+      parameters:
+        - name: type
+          in: query
+          schema:
+            type: string
+          description: Type of resource (e.g., app, cluster)
+        - name: identifier
+          in: query
+          schema:
+            type: string
+          description: Identifier for the resource (e.g., app name)
+        - name: appId
+          in: query
+          schema:
+            type: integer
+        - name: envId
+          in: query
+          schema:
+            type: integer
+        - name: clusterId
+          in: query
+          schema:
+            type: integer
+          description: Actual clusterId if different from identifier when type is cluster
+      responses:
+        '200':
+          description: A list of active external links.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ExternalLinkDto'
+        # ... other error responses
+    put:
+      summary: Update an external link
+      tags:
+        - ExternalLink
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExternalLinkDto' # Requires ID
+      responses:
+        '200':
+          description: External link updated successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExternalLinkApiResponse'
+        # ... other error responses
+  /external-links/tools:
+    get:
+      summary: Get all active monitoring tools
+      tags:
+        - ExternalLink
+      responses:
+        '200':
+          description: A list of active monitoring tools.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ExternalLinkMonitoringToolDto'
+        # ... other error responses
+  /external-links/{id}:
+    delete:
+      summary: Delete an external link by ID
+  /flux-application:
+    get:
+      summary: List Flux applications
+      tags:
+        - FluxApplication
+      parameters:
+        - name: clusterIds
+          in: query
+          required: false
+          description: Comma-separated list of cluster IDs to filter by.
+          schema:
+            type: string #
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          required: false
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: A list of Flux applications.
+          content:
+            application/json:
+              schema:
+                type: array
+                items: # The handler actually returns a map[int][]*FluxApplication, then transformed.
+                       # For simplicity, representing as a flat list or a structured list DTO.
+                  $ref: '#/components/schemas/FluxApplicationListDto' # More likely FluxAppList
+        # ... other error responses
+
+  /flux-application/app: #?appId={appId} -> this implies query param not path
+    get:
+      summary: Get Flux application detail
+      tags:
+        - FluxApplication
+      parameters:
+        - name: appId # This is a string like "namespace|name|clusterId|isKustomize"
+          in: query
+          required: true
+          description: Application identifier string.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Detailed information about a Flux application.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FluxApplicationDetailDto'
+        # ... other error responses
+      tags:
+        - ExternalLink
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: External link deleted successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExternalLinkApiResponse'
+        # ... other error responses
+      tags:
+        - DeploymentTemplate
+      responses:
+        '200':
+          description: A list of chart references.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ChartRefDto' # from chartRef/bean/bean.go
+        # ... other error responses
+      tags:
+        - Telemetry
+      responses:
+        '200':
+          description: Event recorded successfully.
+          content:
+            application/json:
+              schema:
+                type: string # "OK"
+        # ... other error responses
+      tags:
+        - Cluster
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Kubeconfig'
+      responses:
+        '200':
+          description: Validation successful.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SimpleSuccessResponse' # or specific validation result
+        # ... other error responses
+      tags:
+        - ChartRepository
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChartSyncManualRequest'
+      responses:
+        '200':
+          description: Chart sync triggered successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ActionResponse'
+        # ... other error responses
+      tags:
+        - UserAuth
+      security:
+        - bearerAuth: [] # Or cookie
+      responses:
+        '200':
+          description: Authentication status.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthVerificationResponse'
+        '401':
+          description: Not authenticated.
+      tags:
+        - RBAC
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: A list of RBAC roles.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RbacRoleDataResponse' # More likely a list of strings or simple role objects
+        # ... other error responses
+  /sso/list:
+    get:
+      summary: List all SSO login configurations
+      tags:
+        - SSO
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: A list of SSO configurations.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SSOLoginDto'
+        # ... other error responses
+  /sso/{id}:
+    get:
+      summary: Get SSO login configuration by ID
+      tags:
+        - SSO
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of the SSO configuration.
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: Detailed SSO configuration.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SSOLoginDto'
+        # ... other error responses
+  /sso: # For GET /?name={name}
+    get:
+      summary: Get SSO login configuration by name
+      tags:
+        - SSO
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: name
+          in: query
+          required: true
+          description: Name of the SSO configuration.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Detailed SSO configuration.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SSOLoginDto'
+        # ... other error responses
+      tags:
+        - ArgoApplication
+      parameters:
+        - name: appName
+          in: query
+          required: true
+          description: Name of the ArgoCD application.
+          schema:
+            type: string
+        - name: clusterId
+          in: query
+          required: true
+          description: ID of the cluster where the application resides.
+          schema:
+            type: integer
+        - name: namespace
+          in: query
+          required: true
+          description: Namespace of the ArgoCD application.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Detailed information about an ArgoCD application.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ArgoApplicationDetailDto'
+        # ... other error responses
+      tags:
+        - AppStoreChartProvider
+      requestBody:
+        content:
+          application/json:
+            schema: # Request is just an ID
+              type: object
+              properties:
+                id:
+                  type: integer
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ActionResponse'
+        # ... other error responses
+  /api-token:
+    get:
+      summary: Get all active API tokens
+      description: Retrieves a list of all active API tokens. Requires super-admin privileges.
+      tags:
+        - ApiToken
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Successfully retrieved API tokens.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ApiToken'
+        '401':
+          description: Unauthorized User.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    post:
+      summary: Create a new API token
+      description: Creates a new API token. Requires super-admin privileges.
+      tags:
+        - ApiToken
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateApiTokenRequest'
+      responses:
+        '200':
+          description: Successfully created API token.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateApiTokenResponse'
+        '400':
+          description: Bad request. Invalid input.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized User.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api-token/{id}:
+    put:
+      summary: Update an existing API token
+      description: Updates an existing API token by its ID. Requires super-admin privileges.
+      tags:
+        - ApiToken
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of the API token to update.
+          schema:
+            type: integer
+            format: int32
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateApiTokenRequest'
+      responses:
+        '200':
+          description: Successfully updated API token.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpdateApiTokenResponse'
+        '400':
+          description: Bad request. Invalid input or ID.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized User.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    delete:
+      summary: Delete an API token
+      description: Deletes an API token by its ID. Requires super-admin privileges.
+      tags:
+        - ApiToken
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of the API token to delete.
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: Successfully deleted API token.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ActionResponse'
+        '400':
+          description: Bad request. Invalid ID.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized User.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api-token/webhook:
+    get:
+      summary: Get all API tokens for webhook usage
+      description: Retrieves a list of API tokens suitable for webhook authentication, filtered by project, environment, and app.
+      tags:
+        - ApiToken
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: projectName
+          in: query
+          required: false
+          description: Name of the project to filter by.
+          schema:
+            type: string
+        - name: environmentName
+          in: query
+          required: false
+          description: Name of the environment to filter by.
+          schema:
+            type: string
+        - name: appName
+          in: query
+          required: false
+          description: Name of the application to filter by.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successfully retrieved API tokens for webhook.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ApiToken'
+        '401':
+          description: Unauthorized User.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
