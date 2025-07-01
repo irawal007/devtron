@@ -1774,7 +1774,7 @@ paths:
     post:
       description: >-
         Clones an application workflow from a source environment to a target
-        environment
+        environment (Enterprise Only)
       operationId: CloneApplicationWorkflow
       requestBody:
         description: A JSON object containing the details required to clone the workflow
