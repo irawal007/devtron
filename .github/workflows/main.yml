@@ -35,8 +35,6 @@ jobs:
           
       - name: Commit and push updated documentation
         run: |
-          git config --local user.email "action@github.com"
-          git config --local user.name "GitHub Action"
           git add specs/swagger/openapi.html
           
           if git diff --staged --quiet; then
