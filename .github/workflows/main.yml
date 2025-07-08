@@ -12,7 +12,9 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-        
+        with:
+          token: ${{ secrets.GH_SYSTEMSDT_TOKEN }}
+  
       - name: Setup Node.js
         uses: actions/setup-node@v4
           
@@ -22,31 +24,30 @@ jobs:
       - name: Lint OpenAPI specification
         run: |
           cd specs/swagger
-          echo "🔍 Linting OpenAPI specification..."
+          echo "Linting OpenAPI specification..."
           redocly lint openapi.yaml --skip-rule=warning
-          echo "✅ Linting passed! No critical errors found."
+          echo "Linting passed! No critical errors found."
         
       - name: Build OpenAPI documentation
         run: |
           cd specs/swagger
           echo "🔨 Building OpenAPI documentation..."
           redocly build-docs openapi.yaml --output=openapi.html
-          echo "✅ Documentation built successfully!"
+          echo "Documentation built successfully!"
           
-      - name: Commit updated documentation
+      - name: Commit and push updated documentation
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
           git add specs/swagger/openapi.html
+          
           if git diff --staged --quiet; then
             echo "📝 No changes to commit"
           else
             git commit -m "Update OpenAPI documentation [skip ci]"
             echo "📝 Documentation updated and committed"
+            git push origin HEAD:${{ github.head_ref }}
+            echo "📤 Changes pushed to PR branch"
           fi
-          
-      - name: Push changes
-        uses: ad-m/github-push-action@master
-        with:
+        env:
           GITHUB_TOKEN: ${{ secrets.GH_SYSTEMSDT_TOKEN }}
-          branch: ${{ github.head_ref }}
