@@ -1,7 +1,7 @@
 openapi: 3.0.0
 info:
   version: 1.0.0
-  title: Common Devtron automation APIs akshat
+  title: Common Devtron automation APIs akshat1
 servers:
   - url: http://localhost/orchestrator
     description: Local development server
