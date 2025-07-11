@@ -5,6 +5,8 @@ on:
       - main
     paths:
       - 'specs/swagger/**'
+permissions:
+  contents: write
 jobs:
   lint-and-build:
     runs-on: ubuntu-latest
