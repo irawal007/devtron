@@ -25,7 +25,8 @@ jobs:
         run: |
           echo "Switching to gh-pages branch..."
           git checkout -b gh-pages
-      
+          git fetch origin gh-pages
+          git pull --rebase origin gh-pages
       - name: Build OpenAPI documentation
         run: |
           cd specs/swagger
@@ -38,8 +39,6 @@ jobs:
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
           echo "Committing and pushing documentation..."
-          git fetch origin gh-pages
-          git pull --rebase origin gh-pages
           git add specs/swagger/openapi.html
           if git diff --staged --quiet; then
             echo "No changes to commit"
