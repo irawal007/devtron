@@ -23,10 +23,14 @@ jobs:
 
       - name: Switch to gh-pages branch
         run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
           echo "Switching to gh-pages branch..."
           git checkout -b gh-pages
           git fetch origin gh-pages
           git pull --rebase origin gh-pages
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_SYSTEMSDT_TOKEN }}
       - name: Build OpenAPI documentation
         run: |
           cd specs/swagger
