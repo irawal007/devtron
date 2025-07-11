@@ -45,7 +45,7 @@ jobs:
             echo "No changes to commit"
           else
             git commit -m "Update OpenAPI documentation from main branch"
-            git push origin gh-pages
+            git push --force origin gh-pages
             echo "Documentation pushed to gh-pages branch!"
           fi
         env:
