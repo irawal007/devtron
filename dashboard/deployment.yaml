@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: devtron-dashboard
+  namespace: devtroncd
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: devtron-dashboard
+  template:
+    metadata:
+      labels:
+        app: devtron-dashboard
+    spec:
+      containers:
+      - name: devtron-dashboard
+        image: devtron-dashboard:latest # This should be replaced with the actual image tag
+        ports:
+        - containerPort: 8080
+        env:
+        - name: PG_ADDR
+          value: "postgresql-postgresql.devtroncd"
+        - name: PG_PORT
+          value: "5432"
+        - name: PG_DATABASE
+          value: "orchestrator"
+        - name: PG_USER
+          valueFrom:
+            secretKeyRef:
+              name: postgresql-postgresql
+              key: postgresql-username
+        - name: PG_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: postgresql-postgresql
+              key: postgresql-password
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: devtron-dashboard
+  namespace: devtroncd
+spec:
+  selector:
+    app: devtron-dashboard
+  ports:
+  - port: 80
+    targetPort: 8080

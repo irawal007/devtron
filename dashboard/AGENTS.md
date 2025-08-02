@@ -25,11 +25,13 @@ The implementation is divided into the following phases:
 *   **Phase 4: Auditing & Advanced Querying (Complete)**
 *   **Phase 5: Finalization & Documentation (Complete)**
 *   **Phase 6: Advanced Auditing Features (Complete)**
+*   **Phase 7: Kubernetes Deployment (In Progress)**
+    *   Create Kubernetes deployment and service YAMLs.
+    *   Configure the application to read database credentials from a Kubernetes secret.
 
 ## 4. Progress and Notes
 
-*   **2025-08-02**: Completed Phase 6. All requested advanced auditing features are implemented.
-*   **Testing Status**: The Go backend has been tested by building it and running a unit test for the `/health` endpoint. However, due to persistent environment issues (Docker permission errors, `getwd` error in Go), I was unable to build or run the Docker container to test the full application.
+*   **2025-08-02**: Started Phase 7. The focus is on creating the Kubernetes deployment configuration.
 
 ---
 *This document will be updated as the project progresses.*
