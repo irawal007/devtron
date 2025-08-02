@@ -53,10 +53,21 @@
                 <th>Finished On</th>
                 <th>Triggered By</th>
                 <th>Image</th>
+                <th>Workflow Type</th>
+                <th>Image Digest</th>
             </tr>
         </thead>
         <tbody></tbody>
     </table>
+
+    <!-- Monthly Deployment History Export -->
+    <h2>Monthly Deployment History Export</h2>
+    <div>
+        <input type="number" id="month-input" placeholder="Month (1-12)" min="1" max="12">
+        <input type="number" id="year-input" placeholder="Year (e.g., 2023)">
+        <button onclick="exportMonthlyDeployments()">Export Monthly Deployments</button>
+    </div>
+
 
     <!-- Application Insights Section -->
     <h2>Application Insights</h2>
@@ -87,6 +98,153 @@
         <tbody></tbody>
     </table>
 
+    <!-- "Who Triggered What and When" Report -->
+    <h2>"Who Triggered What and When" Report</h2>
+    <table id="trigger-audits-table">
+        <thead>
+            <tr>
+                <th>Triggered By</th>
+                <th>App Name</th>
+                <th>Pipeline</th>
+                <th>Timestamp</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+
+
+    <!-- Virtual Service Usage Report -->
+    <h2>Virtual Service Usage Report</h2>
+    <table id="virtual-service-usage-table">
+        <thead>
+            <tr>
+                <th>App ID</th>
+                <th>App Name</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+
+    <!-- Apps Not Deployed Report -->
+    <h2>Apps Not Deployed in Specific Environments</h2>
+    <div>
+        <input type="text" id="not-deployed-env-ids" placeholder="Enter comma-separated env IDs">
+        <button onclick="getAppsNotDeployed()">Get Apps</button>
+    </div>
+    <table id="not-deployed-table">
+        <thead>
+            <tr>
+                <th>App ID</th>
+                <th>App Name</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+
+    <!-- Build Time Analytics -->
+    <h2>Build Time Analytics</h2>
+    <div>
+        <input type="text" id="build-time-app-id" placeholder="Enter App ID (optional)">
+        <button onclick="getBuildTimeAnalytics()">Get Build Times</button>
+    </div>
+    <table id="build-time-table">
+        <thead>
+            <tr>
+                <th>App Name</th>
+                <th>Pipeline ID</th>
+                <th>Build Time (seconds)</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+
+    <!-- Chart Version Usage Report -->
+    <h2>Chart Version Usage Report</h2>
+    <div>
+        <input type="text" id="chart-version-input" placeholder="Enter Chart Version">
+        <button onclick="getChartVersionUsage()">Get Apps</button>
+    </div>
+    <table id="chart-version-usage-table">
+        <thead>
+            <tr>
+                <th>App ID</th>
+                <th>App Name</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+
+    <!-- Scoped Variable Usage Report -->
+    <h2>Scoped Variable Usage Report</h2>
+    <div>
+        <input type="text" id="scoped-variable-input" placeholder="Enter Variable Name">
+        <button onclick="getScopedVariableUsage()">Get Usage</button>
+    </div>
+    <table id="scoped-variable-usage-table">
+        <thead>
+            <tr>
+                <th>Entity Type</th>
+                <th>Entity ID</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+
+    <!-- Deployed Branch Report -->
+    <h2>Deployed Branch Report</h2>
+    <div>
+        <input type="text" id="deployed-branch-env-id" placeholder="Enter Environment ID">
+        <button onclick="getDeployedBranchReport()">Get Deployed Branches</button>
+    </div>
+    <table id="deployed-branch-table">
+        <thead>
+            <tr>
+                <th>App Name</th>
+                <th>Branch</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+
+    <!-- Image Scanning Not Enabled Report -->
+    <h2>Image Scanning Not Enabled Report</h2>
+    <table id="no-image-scan-table">
+        <thead>
+            <tr>
+                <th>Pipeline ID</th>
+                <th>App Name</th>
+                <th>Pipeline Name</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+
+    <!-- Trivy Scan Result Download -->
+    <h2>Trivy Scan Result Download</h2>
+    <div>
+        <input type="text" id="trivy-app-id" placeholder="Enter App ID">
+        <button onclick="downloadTrivyScanResult()">Download CSV</button>
+    </div>
+
+    <!-- Secrets and ConfigMaps Dump -->
+    <h2>Secrets and ConfigMaps Dump</h2>
+    <div>
+        <input type="text" id="dump-cluster-id" placeholder="Enter Cluster ID">
+        <button onclick="dumpSecretsAndConfigMaps()">Get Dump</button>
+    </div>
+    <table id="dump-table">
+        <thead>
+            <tr>
+                <th>App Name</th>
+                <th>Environment</th>
+                <th>ConfigMap</th>
+                <th>Secret</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+
+
     <!-- Simple SQL Query Interface Section -->
     <h2>Simple SQL Query Interface</h2>
     <div id="query-container">
@@ -105,6 +263,16 @@
         // Common function to export data by navigating to the export URL.
         function exportData(url) {
             window.location.href = url;
+        }
+
+        function exportMonthlyDeployments() {
+            const month = document.getElementById('month-input').value;
+            const year = document.getElementById('year-input').value;
+            if (!month || !year) {
+                alert('Please enter both month and year.');
+                return;
+            }
+            window.location.href = `/api/deployments/export/monthly?month=${month}&year=${year}`;
         }
 
         // Fetches and renders data for a given API endpoint and table.
@@ -159,6 +327,77 @@
                 tableBody.appendChild(row);
             });
         }
+
+        // Apps not deployed report
+        function getAppsNotDeployed() {
+            const envIds = document.getElementById('not-deployed-env-ids').value;
+            if (!envIds) {
+                alert('Please enter environment IDs.');
+                return;
+            }
+            fetchAndRender(`/api/applications/not-deployed?envIds=${envIds}`, 'not-deployed-table', ['id', 'name']);
+        }
+
+        // Build time analytics
+        function getBuildTimeAnalytics() {
+            const appId = document.getElementById('build-time-app-id').value;
+            let url = '/api/ci/build-time';
+            if (appId) {
+                url += `?appId=${appId}`;
+            }
+            fetchAndRender(url, 'build-time-table', ['appName', 'pipelineId', 'buildTime']);
+        }
+
+        // Chart version usage report
+        function getChartVersionUsage() {
+            const chartVersion = document.getElementById('chart-version-input').value;
+            if (!chartVersion) {
+                alert('Please enter a chart version.');
+                return;
+            }
+            fetchAndRender(`/api/applications/chart-version-usage?chartVersion=${chartVersion}`, 'chart-version-usage-table', ['id', 'name']);
+        }
+
+        // Scoped variable usage report
+        function getScopedVariableUsage() {
+            const variableName = document.getElementById('scoped-variable-input').value;
+            if (!variableName) {
+                alert('Please enter a variable name.');
+                return;
+            }
+            fetchAndRender(`/api/scoped-variable-usage?variableName=${variableName}`, 'scoped-variable-usage-table', ['entityType', 'entityId']);
+        }
+
+        // Deployed branch report
+        function getDeployedBranchReport() {
+            const envId = document.getElementById('deployed-branch-env-id').value;
+            if (!envId) {
+                alert('Please enter an environment ID.');
+                return;
+            }
+            fetchAndRender(`/api/applications/deployed-branch?envId=${envId}`, 'deployed-branch-table', ['appName', 'branch']);
+        }
+
+        // Trivy scan result download
+        function downloadTrivyScanResult() {
+            const appId = document.getElementById('trivy-app-id').value;
+            if (!appId) {
+                alert('Please enter an App ID.');
+                return;
+            }
+            window.location.href = `/api/applications/trivy-scan/export?appId=${appId}`;
+        }
+
+        // Secrets and ConfigMaps Dump
+        function dumpSecretsAndConfigMaps() {
+            const clusterId = document.getElementById('dump-cluster-id').value;
+            if (!clusterId) {
+                alert('Please enter a Cluster ID.');
+                return;
+            }
+            fetchAndRender(`/api/cluster/dump-secrets-configmaps?clusterId=${clusterId}`, 'dump-table', ['appName', 'envName', 'configMap', 'secret']);
+        }
+
 
         // SQL Query Interface Logic
         const queryInput = document.getElementById('query-input');
@@ -227,9 +466,12 @@
 
         // Initial data fetch for all tables
         fetchAndRender('/api/users', 'users-table', ['id', 'email', 'roles', 'team', 'isActive']);
-        fetchAndRender('/api/deployments', 'deployments-table', ['id', 'appName', 'environmentName', 'status', 'startedOn', 'finishedOn', 'triggeredBy', 'image']);
+        fetchAndRender('/api/deployments', 'deployments-table', ['id', 'appName', 'environmentName', 'status', 'startedOn', 'finishedOn', 'triggeredBy', 'image', 'workflowType', 'imageDigest']);
         fetchAndRender('/api/applications', 'applications-table', null, renderApplications);
         fetchAndRender('/api/audits', 'audits-table', ['id', 'userId', 'userEmail', 'clientIp', 'timestamp']);
+        fetchAndRender('/api/audits/triggers', 'trigger-audits-table', ['triggeredBy', 'appName', 'pipeline', 'timestamp']);
+        fetchAndRender('/api/applications/virtual-service-usage', 'virtual-service-usage-table', ['appId', 'appName']);
+        fetchAndRender('/api/pipelines/no-image-scan', 'no-image-scan-table', ['id', 'appName', 'name']);
 
     </script>
 </body>
