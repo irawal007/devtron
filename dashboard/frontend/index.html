@@ -19,7 +19,7 @@
 <body>
     <h1>Devtron Audit Dashboard</h1>
 
-    <!-- User Management -->
+    <!-- User Management Section -->
     <h2>User Management</h2>
     <div class="filter-container">
         <input type="text" id="email-filter" placeholder="Filter by email...">
@@ -39,7 +39,7 @@
         <tbody></tbody>
     </table>
 
-    <!-- Deployment Analytics -->
+    <!-- Deployment Analytics Section -->
     <h2>Deployment Analytics</h2>
     <button class="export-btn" onclick="exportData('/api/deployments/export')">Export Deployments to CSV</button>
     <table id="deployments-table">
@@ -58,7 +58,7 @@
         <tbody></tbody>
     </table>
 
-    <!-- Application Insights -->
+    <!-- Application Insights Section -->
     <h2>Application Insights</h2>
     <button class="export-btn" onclick="exportData('/api/applications/export')">Export Applications to CSV</button>
     <table id="applications-table">
@@ -72,7 +72,7 @@
         <tbody></tbody>
     </table>
 
-    <!-- System Auditing -->
+    <!-- System Auditing Section -->
     <h2>System Auditing</h2>
     <table id="audits-table">
         <thead>
@@ -87,7 +87,7 @@
         <tbody></tbody>
     </table>
 
-    <!-- Simple SQL Query Interface -->
+    <!-- Simple SQL Query Interface Section -->
     <h2>Simple SQL Query Interface</h2>
     <div id="query-container">
         <p class="warning">Warning: Use this interface with caution. Only read-only queries are allowed.</p>
@@ -102,59 +102,28 @@
 
 
     <script>
-        // Common function to export data
+        // Common function to export data by navigating to the export URL.
         function exportData(url) {
             window.location.href = url;
         }
 
-        // Fetch and render users
-        (async function fetchAndRenderUsers() {
+        // Fetches and renders data for a given API endpoint and table.
+        async function fetchAndRender(apiUrl, tableId, columns, customRender) {
             try {
-                const response = await fetch('/api/users');
-                const users = await response.json();
-                const tableBody = document.querySelector('#users-table tbody');
-                renderTable(tableBody, users, ['id', 'email', 'roles', 'team', 'isActive']);
+                const response = await fetch(apiUrl);
+                const data = await response.json();
+                const tableBody = document.querySelector(`#${tableId} tbody`);
+                if (customRender) {
+                    customRender(tableBody, data);
+                } else {
+                    renderTable(tableBody, data, columns);
+                }
             } catch (error) {
-                console.error('Failed to fetch users:', error);
+                console.error(`Failed to fetch data from ${apiUrl}:`, error);
             }
-        })();
+        }
 
-        // Fetch and render deployments
-        (async function fetchAndRenderDeployments() {
-            try {
-                const response = await fetch('/api/deployments');
-                const deployments = await response.json();
-                const tableBody = document.querySelector('#deployments-table tbody');
-                renderTable(tableBody, deployments, ['id', 'appName', 'environmentName', 'status', 'startedOn', 'finishedOn', 'triggeredBy', 'image']);
-            } catch (error) {
-                console.error('Failed to fetch deployments:', error);
-            }
-        })();
-
-        // Fetch and render applications
-        (async function fetchAndRenderApplications() {
-            try {
-                const response = await fetch('/api/applications');
-                const applications = await response.json();
-                const tableBody = document.querySelector('#applications-table tbody');
-                renderApplications(tableBody, applications);
-            } catch (error) {
-                console.error('Failed to fetch applications:', error);
-            }
-        })();
-
-        // Fetch and render audits
-        (async function fetchAndRenderAudits() {
-            try {
-                const response = await fetch('/api/audits');
-                const audits = await response.json();
-                const tableBody = document.querySelector('#audits-table tbody');
-                renderTable(tableBody, audits, ['id', 'userId', 'userEmail', 'clientIp', 'timestamp']);
-            } catch (error) {
-                console.error('Failed to fetch audits:', error);
-            }
-        })();
-
+        // Generic function to render data in a table.
         function renderTable(tableBody, data, columns) {
             tableBody.innerHTML = '';
             if (!data || data.length === 0) {
@@ -172,6 +141,7 @@
             });
         }
 
+        // Custom renderer for the applications table.
         function renderApplications(tableBody, applications) {
             tableBody.innerHTML = '';
             if (!applications || applications.length === 0) {
@@ -190,7 +160,7 @@
             });
         }
 
-        // SQL Query Interface
+        // SQL Query Interface Logic
         const queryInput = document.getElementById('query-input');
         const executeQueryBtn = document.getElementById('execute-query-btn');
         const queryResultsTable = document.querySelector('#query-results-table');
@@ -254,6 +224,12 @@
         }
 
         executeQueryBtn.addEventListener('click', executeQuery);
+
+        // Initial data fetch for all tables
+        fetchAndRender('/api/users', 'users-table', ['id', 'email', 'roles', 'team', 'isActive']);
+        fetchAndRender('/api/deployments', 'deployments-table', ['id', 'appName', 'environmentName', 'status', 'startedOn', 'finishedOn', 'triggeredBy', 'image']);
+        fetchAndRender('/api/applications', 'applications-table', null, renderApplications);
+        fetchAndRender('/api/audits', 'audits-table', ['id', 'userId', 'userEmail', 'clientIp', 'timestamp']);
 
     </script>
 </body>

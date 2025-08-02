@@ -10,14 +10,14 @@ import (
 	"time"
 )
 
-// Application represents an application with its version history.
+// Application represents an application with its version history for the API response.
 type Application struct {
 	ID             int          `json:"id"`
 	AppName        string       `json:"appName"`
 	VersionHistory []AppVersion `json:"versionHistory"`
 }
 
-// AppVersion represents a specific version of an application.
+// AppVersion represents a specific version of an application for the API response.
 type AppVersion struct {
 	InstalledAppVersionID int       `json:"installedAppVersionId"`
 	StartedOn             time.Time `json:"startedOn"`
@@ -25,6 +25,7 @@ type AppVersion struct {
 	Status                string    `json:"status"`
 }
 
+// getApplications fetches a list of applications with their version history from the database.
 func getApplications(w http.ResponseWriter, r *http.Request) ([]Application, error) {
 	// Query to fetch applications and their version history
 	rows, err := db.Query(`
@@ -76,6 +77,7 @@ func getApplications(w http.ResponseWriter, r *http.Request) ([]Application, err
 	return apps, nil
 }
 
+// getApplicationsHandler is the HTTP handler for fetching applications.
 func getApplicationsHandler(w http.ResponseWriter, r *http.Request) {
 	apps, err := getApplications(w, r)
 	if err != nil {
@@ -91,6 +93,7 @@ func getApplicationsHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// exportApplicationsHandler is the HTTP handler for exporting applications to CSV.
 func exportApplicationsHandler(w http.ResponseWriter, r *http.Request) {
 	apps, err := getApplications(w, r)
 	if err != nil {

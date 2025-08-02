@@ -7,11 +7,12 @@ import (
 	"log"
 	"net/http"
 	"strconv"
+	"strings"
 
 	"github.com/lib/pq"
 )
 
-// User represents a user with their roles and teams.
+// User represents a user with their roles and teams for the API response.
 type User struct {
 	ID       int      `json:"id"`
 	Email    string   `json:"email"`
@@ -20,6 +21,7 @@ type User struct {
 	IsActive bool     `json:"isActive"`
 }
 
+// getUsers fetches a list of users with their roles and teams from the database.
 func getUsers(w http.ResponseWriter, r *http.Request) ([]User, error) {
 	// Query to fetch users with their roles and teams
 	rows, err := db.Query(`
@@ -82,6 +84,7 @@ func getUsers(w http.ResponseWriter, r *http.Request) ([]User, error) {
 	return users, nil
 }
 
+// getUsersHandler is the HTTP handler for fetching users.
 func getUsersHandler(w http.ResponseWriter, r *http.Request) {
 	users, err := getUsers(w, r)
 	if err != nil {
@@ -97,6 +100,7 @@ func getUsersHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// exportUsersHandler is the HTTP handler for exporting users to CSV.
 func exportUsersHandler(w http.ResponseWriter, r *http.Request) {
 	users, err := getUsers(w, r)
 	if err != nil {
@@ -123,7 +127,7 @@ func exportUsersHandler(w http.ResponseWriter, r *http.Request) {
 		row := []string{
 			strconv.Itoa(user.ID),
 			user.Email,
-			pq.Array(user.Roles).String(),
+			strings.Join(user.Roles, ","),
 			user.Team,
 			strconv.FormatBool(user.IsActive),
 		}

@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-// Deployment represents a deployment with its associated data.
+// Deployment represents a deployment with its associated data for the API response.
 type Deployment struct {
 	ID              int       `json:"id"`
 	AppName         string    `json:"appName"`
@@ -21,6 +21,7 @@ type Deployment struct {
 	Image           string    `json:"image"`
 }
 
+// getDeployments fetches a list of deployments from the database.
 func getDeployments(w http.ResponseWriter, r *http.Request) ([]Deployment, error) {
 	// Query to fetch deployments
 	rows, err := db.Query(`
@@ -64,6 +65,7 @@ func getDeployments(w http.ResponseWriter, r *http.Request) ([]Deployment, error
 	return deployments, nil
 }
 
+// getDeploymentsHandler is the HTTP handler for fetching deployments.
 func getDeploymentsHandler(w http.ResponseWriter, r *http.Request) {
 	deployments, err := getDeployments(w, r)
 	if err != nil {
@@ -79,6 +81,7 @@ func getDeploymentsHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// exportDeploymentsHandler is the HTTP handler for exporting deployments to CSV.
 func exportDeploymentsHandler(w http.ResponseWriter, r *http.Request) {
 	deployments, err := getDeployments(w, r)
 	if err != nil {

@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-// AuditLog represents a single audit log entry.
+// AuditLog represents a single audit log entry for the API response.
 type AuditLog struct {
 	ID        int       `json:"id"`
 	UserID    int       `json:"userId"`
@@ -16,6 +16,7 @@ type AuditLog struct {
 	Timestamp time.Time `json:"timestamp"`
 }
 
+// getAuditsHandler is the HTTP handler for fetching audit logs.
 func getAuditsHandler(w http.ResponseWriter, r *http.Request) {
 	// Query to fetch user audit data
 	rows, err := db.Query(`

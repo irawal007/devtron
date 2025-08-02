@@ -10,8 +10,10 @@ import (
 	_ "github.com/lib/pq"
 )
 
+// db is the global database connection pool.
 var db *sql.DB
 
+// healthHandler checks the health of the application, including the database connection.
 func healthHandler(w http.ResponseWriter, r *http.Request) {
 	// Check database connection
 	if db != nil {
@@ -56,15 +58,18 @@ func main() {
 	}
 	// not closing db connection here, as it will be used by handlers
 
+	// Ping the database to verify the connection on startup.
 	if err = db.Ping(); err != nil {
 		log.Printf("Initial database connection failed: %v", err)
 	} else {
 		log.Println("Successfully connected to the database")
 	}
 
-	// Serve frontend static files
+	// Serve frontend static files from the 'frontend' directory.
 	fs := http.FileServer(http.Dir("./frontend"))
 	http.Handle("/", fs)
+
+	// Register API handlers.
 	http.HandleFunc("/health", healthHandler)
 	http.HandleFunc("/api/users", getUsersHandler)
 	http.HandleFunc("/api/users/export", exportUsersHandler)

@@ -7,6 +7,8 @@ import (
 	"net/http"
 )
 
+// queryHandler is the HTTP handler for executing a user-provided SQL query.
+// It is designed to be a read-only endpoint.
 func queryHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, "Only POST method is allowed", http.StatusMethodNotAllowed)
@@ -27,6 +29,9 @@ func queryHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Execute the user-provided query.
+	// IMPORTANT: This endpoint is intended for read-only queries.
+	// The database user should have read-only permissions to mitigate the risk of malicious queries.
 	rows, err := db.Query(query)
 	if err != nil {
 		http.Error(w, "Failed to execute query", http.StatusInternalServerError)
@@ -35,6 +40,7 @@ func queryHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	defer rows.Close()
 
+	// Get column names
 	columns, err := rows.Columns()
 	if err != nil {
 		http.Error(w, "Failed to get columns", http.StatusInternalServerError)
@@ -42,6 +48,7 @@ func queryHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Fetch rows and convert them to a slice of maps.
 	var results []map[string]interface{}
 	for rows.Next() {
 		values := make([]interface{}, len(columns))
@@ -59,6 +66,7 @@ func queryHandler(w http.ResponseWriter, r *http.Request) {
 		result := make(map[string]interface{})
 		for i, col := range columns {
 			val := values[i]
+			// Convert byte slices to strings for better JSON representation.
 			b, ok := val.([]byte)
 			if ok {
 				result[col] = string(b)
