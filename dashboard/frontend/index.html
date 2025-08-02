@@ -11,6 +11,9 @@
         th { background-color: #f2f2f2; }
         .filter-container { margin-bottom: 10px; }
         .export-btn { margin-bottom: 10px; }
+        #query-container { margin-top: 20px; }
+        #query-input { width: 100%; height: 100px; }
+        .warning { color: red; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -69,6 +72,35 @@
         <tbody></tbody>
     </table>
 
+    <!-- System Auditing -->
+    <h2>System Auditing</h2>
+    <table id="audits-table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>User ID</th>
+                <th>User Email</th>
+                <th>Client IP</th>
+                <th>Timestamp</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+
+    <!-- Simple SQL Query Interface -->
+    <h2>Simple SQL Query Interface</h2>
+    <div id="query-container">
+        <p class="warning">Warning: Use this interface with caution. Only read-only queries are allowed.</p>
+        <textarea id="query-input" placeholder="Enter your SQL query here..."></textarea>
+        <button id="execute-query-btn">Execute Query</button>
+        <h3>Query Results</h3>
+        <table id="query-results-table">
+            <thead></thead>
+            <tbody></tbody>
+        </table>
+    </div>
+
+
     <script>
         // Common function to export data
         function exportData(url) {
@@ -111,6 +143,18 @@
             }
         })();
 
+        // Fetch and render audits
+        (async function fetchAndRenderAudits() {
+            try {
+                const response = await fetch('/api/audits');
+                const audits = await response.json();
+                const tableBody = document.querySelector('#audits-table tbody');
+                renderTable(tableBody, audits, ['id', 'userId', 'userEmail', 'clientIp', 'timestamp']);
+            } catch (error) {
+                console.error('Failed to fetch audits:', error);
+            }
+        })();
+
         function renderTable(tableBody, data, columns) {
             tableBody.innerHTML = '';
             if (!data || data.length === 0) {
@@ -145,6 +189,71 @@
                 tableBody.appendChild(row);
             });
         }
+
+        // SQL Query Interface
+        const queryInput = document.getElementById('query-input');
+        const executeQueryBtn = document.getElementById('execute-query-btn');
+        const queryResultsTable = document.querySelector('#query-results-table');
+
+        async function executeQuery() {
+            const query = queryInput.value;
+            if (!query) {
+                alert('Query cannot be empty.');
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/query', {
+                    method: 'POST',
+                    body: query
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const results = await response.json();
+                renderQueryResults(results);
+            } catch (error) {
+                console.error('Failed to execute query:', error);
+                alert('Failed to execute query. See console for details.');
+            }
+        }
+
+        function renderQueryResults(results) {
+            const tableHead = queryResultsTable.querySelector('thead');
+            const tableBody = queryResultsTable.querySelector('tbody');
+            tableHead.innerHTML = '';
+            tableBody.innerHTML = '';
+
+            if (!results || results.length === 0) {
+                tableBody.innerHTML = '<tr><td>No results found.</td></tr>';
+                return;
+            }
+
+            // Create header row
+            const headers = Object.keys(results[0]);
+            const headerRow = document.createElement('tr');
+            headers.forEach(header => {
+                const th = document.createElement('th');
+                th.textContent = header;
+                headerRow.appendChild(th);
+            });
+            tableHead.appendChild(headerRow);
+
+            // Create data rows
+            results.forEach(result => {
+                const row = document.createElement('tr');
+                headers.forEach(header => {
+                    const cell = document.createElement('td');
+                    cell.textContent = result[header];
+                    row.appendChild(cell);
+                });
+                tableBody.appendChild(row);
+            });
+        }
+
+        executeQueryBtn.addEventListener('click', executeQuery);
 
     </script>
 </body>

@@ -72,6 +72,8 @@ func main() {
 	http.HandleFunc("/api/deployments/export", exportDeploymentsHandler)
 	http.HandleFunc("/api/applications", getApplicationsHandler)
 	http.HandleFunc("/api/applications/export", exportApplicationsHandler)
+	http.HandleFunc("/api/audits", getAuditsHandler)
+	http.HandleFunc("/api/query", queryHandler)
 
 
 	log.Println("Starting server on :8080")
