@@ -68,6 +68,11 @@ func main() {
 	http.HandleFunc("/health", healthHandler)
 	http.HandleFunc("/api/users", getUsersHandler)
 	http.HandleFunc("/api/users/export", exportUsersHandler)
+	http.HandleFunc("/api/deployments", getDeploymentsHandler)
+	http.HandleFunc("/api/deployments/export", exportDeploymentsHandler)
+	http.HandleFunc("/api/applications", getApplicationsHandler)
+	http.HandleFunc("/api/applications/export", exportApplicationsHandler)
+
 
 	log.Println("Starting server on :8080")
 	if err := http.ListenAndServe(":8080", nil); err != nil {

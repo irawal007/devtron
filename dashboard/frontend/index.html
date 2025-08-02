@@ -6,24 +6,23 @@
     <title>Devtron Audit Dashboard</title>
     <style>
         body { font-family: sans-serif; }
-        table { border-collapse: collapse; width: 100%; }
+        table { border-collapse: collapse; width: 100%; margin-bottom: 20px; }
         th, td { border: 1px solid #ddd; padding: 8px; }
         th { background-color: #f2f2f2; }
-        #filter-container { margin-bottom: 10px; }
-        #export-btn { margin-bottom: 10px; }
+        .filter-container { margin-bottom: 10px; }
+        .export-btn { margin-bottom: 10px; }
     </style>
 </head>
 <body>
     <h1>Devtron Audit Dashboard</h1>
-    <h2>User Management</h2>
 
-    <div id="filter-container">
+    <!-- User Management -->
+    <h2>User Management</h2>
+    <div class="filter-container">
         <input type="text" id="email-filter" placeholder="Filter by email...">
         <input type="text" id="team-filter" placeholder="Filter by team...">
     </div>
-
-    <button id="export-btn">Export to CSV</button>
-
+    <button class="export-btn" onclick="exportData('/api/users/export')">Export Users to CSV</button>
     <table id="users-table">
         <thead>
             <tr>
@@ -34,76 +33,119 @@
                 <th>Active</th>
             </tr>
         </thead>
-        <tbody>
-            <!-- User data will be inserted here -->
-        </tbody>
+        <tbody></tbody>
+    </table>
+
+    <!-- Deployment Analytics -->
+    <h2>Deployment Analytics</h2>
+    <button class="export-btn" onclick="exportData('/api/deployments/export')">Export Deployments to CSV</button>
+    <table id="deployments-table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>App Name</th>
+                <th>Environment</th>
+                <th>Status</th>
+                <th>Started On</th>
+                <th>Finished On</th>
+                <th>Triggered By</th>
+                <th>Image</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+
+    <!-- Application Insights -->
+    <h2>Application Insights</h2>
+    <button class="export-btn" onclick="exportData('/api/applications/export')">Export Applications to CSV</button>
+    <table id="applications-table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>App Name</th>
+                <th>Version History</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
     </table>
 
     <script>
-        const emailFilter = document.getElementById('email-filter');
-        const teamFilter = document.getElementById('team-filter');
-        const usersTableBody = document.querySelector('#users-table tbody');
-        const exportBtn = document.getElementById('export-btn');
-        let allUsers = [];
+        // Common function to export data
+        function exportData(url) {
+            window.location.href = url;
+        }
 
-        async function fetchUsers() {
+        // Fetch and render users
+        (async function fetchAndRenderUsers() {
             try {
                 const response = await fetch('/api/users');
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
                 const users = await response.json();
-                allUsers = users;
-                renderUsers(users);
+                const tableBody = document.querySelector('#users-table tbody');
+                renderTable(tableBody, users, ['id', 'email', 'roles', 'team', 'isActive']);
             } catch (error) {
                 console.error('Failed to fetch users:', error);
-                usersTableBody.innerHTML = '<tr><td colspan="5">Failed to load users.</td></tr>';
             }
-        }
+        })();
 
-        function renderUsers(users) {
-            usersTableBody.innerHTML = '';
-            if (!users || users.length === 0) {
-                usersTableBody.innerHTML = '<tr><td colspan="5">No users found.</td></tr>';
+        // Fetch and render deployments
+        (async function fetchAndRenderDeployments() {
+            try {
+                const response = await fetch('/api/deployments');
+                const deployments = await response.json();
+                const tableBody = document.querySelector('#deployments-table tbody');
+                renderTable(tableBody, deployments, ['id', 'appName', 'environmentName', 'status', 'startedOn', 'finishedOn', 'triggeredBy', 'image']);
+            } catch (error) {
+                console.error('Failed to fetch deployments:', error);
+            }
+        })();
+
+        // Fetch and render applications
+        (async function fetchAndRenderApplications() {
+            try {
+                const response = await fetch('/api/applications');
+                const applications = await response.json();
+                const tableBody = document.querySelector('#applications-table tbody');
+                renderApplications(tableBody, applications);
+            } catch (error) {
+                console.error('Failed to fetch applications:', error);
+            }
+        })();
+
+        function renderTable(tableBody, data, columns) {
+            tableBody.innerHTML = '';
+            if (!data || data.length === 0) {
+                tableBody.innerHTML = `<tr><td colspan="${columns.length}">No data found.</td></tr>`;
                 return;
             }
-
-            users.forEach(user => {
+            data.forEach(item => {
                 const row = document.createElement('tr');
+                columns.forEach(col => {
+                    const cell = document.createElement('td');
+                    cell.textContent = Array.isArray(item[col]) ? item[col].join(', ') : item[col];
+                    row.appendChild(cell);
+                });
+                tableBody.appendChild(row);
+            });
+        }
+
+        function renderApplications(tableBody, applications) {
+            tableBody.innerHTML = '';
+            if (!applications || applications.length === 0) {
+                tableBody.innerHTML = '<tr><td colspan="3">No applications found.</td></tr>';
+                return;
+            }
+            applications.forEach(app => {
+                const row = document.createElement('tr');
+                const versionHistory = app.versionHistory.map(v => `ID: ${v.installedAppVersionId}, Status: ${v.status}`).join('<br>');
                 row.innerHTML = `
-                    <td>${user.id}</td>
-                    <td>${user.email}</td>
-                    <td>${user.roles ? user.roles.join(', ') : ''}</td>
-                    <td>${user.team || ''}</td>
-                    <td>${user.isActive}</td>
+                    <td>${app.id}</td>
+                    <td>${app.appName}</td>
+                    <td>${versionHistory}</td>
                 `;
-                usersTableBody.appendChild(row);
+                tableBody.appendChild(row);
             });
         }
 
-        function filterUsers() {
-            const emailValue = emailFilter.value.toLowerCase();
-            const teamValue = teamFilter.value.toLowerCase();
-
-            const filteredUsers = allUsers.filter(user => {
-                const emailMatch = user.email.toLowerCase().includes(emailValue);
-                const teamMatch = user.team ? user.team.toLowerCase().includes(teamValue) : true;
-                return emailMatch && teamMatch;
-            });
-
-            renderUsers(filteredUsers);
-        }
-
-        function exportUsers() {
-            window.location.href = '/api/users/export';
-        }
-
-        emailFilter.addEventListener('input', filterUsers);
-        teamFilter.addEventListener('input', filterUsers);
-        exportBtn.addEventListener('click', exportUsers);
-
-        // Initial fetch of users
-        fetchUsers();
     </script>
 </body>
 </html>
