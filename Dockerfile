@@ -37,7 +37,7 @@ COPY --chown=devtron:devtron --from=build-env  /go/src/github.com/devtron-labs/d
 
 COPY --chown=devtron:devtron --from=build-env  /go/src/github.com/devtron-labs/devtron/scripts/argo-assets/APPLICATION_TEMPLATE.tmpl scripts/argo-assets/APPLICATION_TEMPLATE.tmpl
 
-COPY  --chown=devtron:devtron ./git-ask-pass.sh /git-ask-pass.sh
+COPY  --chown=devtron:devtron --from=build-env /go/src/github.com/devtron-labs/devtron/git-ask-pass.sh /git-ask-pass.sh
 
 RUN chmod +x /git-ask-pass.sh 
 
